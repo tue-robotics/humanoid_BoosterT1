@@ -1,0 +1,4 @@
+/* Use more of a wide screen; the Material default is 61rem (about 1220 px). */
+.md-grid {
+  max-width: min(94vw, 1800px);
+}

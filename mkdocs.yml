@@ -1,0 +1,85 @@
+site_name: Booster T1 Documentation for Tech United @Home
+site_url: https://tue-robotics.github.io/humanoid_BoosterT1/
+repo_url: https://github.com/tue-robotics
+repo_name: tue-robotics
+strict: !ENV [DOCS_STRICT, true]   # set DOCS_STRICT=false only for a local preview while editing
+
+theme:
+  name: material
+  # Light/dark toggle in the header; the first visit follows the reader's system setting.
+  # Dark colours are tuned in docs/assets/extra.css (VS Code-style base #23272e).
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  font:
+    text: Source Sans 3
+    code: Roboto Mono
+  features:
+    - navigation.tabs        # top-level sections as a horizontal bar
+    - navigation.indexes
+    - content.code.copy
+    - navigation.footer      # previous / next page links at the bottom of every page
+  icon:
+    repo: fontawesome/brands/github
+
+copyright: Tech United Eindhoven &middot; RoboCup @Home
+
+extra:
+  social:                  # icons at the bottom right of every page
+    - icon: fontawesome/brands/github
+      link: https://github.com/tue-robotics/humanoid_BoosterT1
+      name: Source on GitHub
+    - icon: material/web
+      link: https://techunited.nl
+      name: Tech United website
+
+extra_css:
+  - assets/extra.css
+
+# NOTE: Material for MkDocs is in maintenance mode until 2027-05-05.
+# Keep the plugin stack minimal and replaceable; prefer plain Markdown
+# so the content survives a switch of site generator.
+plugins:
+  - search
+  - privacy:               # downloads the Google fonts at build time and serves them from this site:
+                           # no visitor data goes to Google (GDPR). Switched off only in the local
+                           # Windows scripts (it needs symlinks there); always on in CI.
+      enabled: !ENV [DOCS_PRIVACY, true]
+  - callouts
+  - git-revision-date-localized:
+      # Disabled by tools/docs/smoke_test.ps1 only until docs/ is tracked by git.
+      enabled: !ENV [DOCS_GIT_DATES, true]
+      enable_creation_date: true
+      fallback_to_build_date: true
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+# Our own hooks, not plugins:
+#   autonav.py   - menu and page titles generated from the docs/ folders (no nav list to maintain)
+#   wikilinks.py - Obsidian [[page#Heading|alias]] links converted to normal links
+hooks:
+  - tools/docs/hooks/autonav.py
+  - tools/docs/hooks/wikilinks.py
+
+# Only systematic, proven, human-reviewed pages belong in docs/;
+# drafts live in the private notebook (l1-drafts/) until reviewed and merged by PR.

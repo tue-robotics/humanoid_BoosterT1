@@ -1,0 +1,49 @@
+{
+  // Documentation tasks. Run with Ctrl+Shift+B (preview), or Terminal > Run Task...
+  // The preview opens http://127.0.0.1:8000/humanoid_BoosterT1/ in your browser and stays up while
+  // VS Code is open. Stop it with the trash-can icon on its terminal tab.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Docs: preview",
+      "type": "shell",
+      "windows": {
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/docs/preview.ps1"
+      },
+      "linux": {
+        "command": "DOCS_STRICT=false DOCS_GIT_DATES=false python3 -m mkdocs serve -a 127.0.0.1:8000 --open"
+      },
+      "osx": {
+        "command": "DOCS_STRICT=false DOCS_GIT_DATES=false python3 -m mkdocs serve -a 127.0.0.1:8000 --open"
+      },
+      "isBackground": true,
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": {
+        "owner": "mkdocs",
+        "pattern": { "regexp": "^WARNING\\s+-\\s+(.*)$", "message": 1 },
+        "background": {
+          "activatesOnStart": true,
+          "beginsPattern": "Building documentation",
+          "endsPattern": "Serving on|already running"
+        }
+      }
+    },
+    {
+      "label": "Docs: check before PR (strict)",
+      "type": "shell",
+      "windows": {
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/docs/smoke_test.ps1"
+      },
+      "linux": {
+        "command": "python3 -m mkdocs build --strict && python3 tools/docs/check_wikilink_leak.py"
+      },
+      "osx": {
+        "command": "python3 -m mkdocs build --strict && python3 tools/docs/check_wikilink_leak.py"
+      },
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    }
+  ]
+}

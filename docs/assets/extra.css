@@ -1,4 +1,128 @@
-/* Use more of a wide screen; the Material default is 61rem (about 1220 px). */
+/* ---------------------------------------------------------------------------------------------
+   Layout: a wide frame, and one centred reading column (about 76 characters) shared by text,
+   tables and code, so every left edge lines up.
+   --------------------------------------------------------------------------------------------- */
 .md-grid {
-  max-width: min(94vw, 1800px);
+  max-width: min(92vw, 1500px);
+}
+.md-content__inner {
+  max-width: 76ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Typography (both themes). Source Sans 3 for text, Roboto Mono for code (set in mkdocs.yml).
+   Contrast is comfortable rather than maximal: body text about 11-12:1, above WCAG AAA (7:1).
+   For long reading: no pure black on pure white (less glare), generous line height, kerning on.
+   --------------------------------------------------------------------------------------------- */
+.md-typeset {
+  font-size: 0.85rem;
+  line-height: 1.72;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+/* Paragraph rhythm: a clear gap between paragraphs helps the eye find its place again. */
+.md-typeset p { margin: 0 0 1.05em; }
+
+/* Page title: large and light. Section headings: firm, for a clear hierarchy. */
+.md-typeset h1 {
+  color: var(--md-default-fg-color);
+  font-weight: 300;
+  font-size: 2.1em;
+  letter-spacing: -0.015em;
+  margin-bottom: 0.9em;
+}
+.md-typeset h2,
+.md-typeset h3 {
+  color: var(--md-default-fg-color);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+.md-typeset h2 { font-size: 1.4em; margin-top: 1.9em; }
+.md-typeset h3 { font-size: 1.12em; margin-top: 1.6em; }
+
+/* Lists breathe a little; tables close to body size (Material's default is 13 px). */
+.md-typeset li { margin-bottom: 0.3em; }
+.md-typeset table:not([class]) { font-size: 0.8rem; }
+
+/* Code inside sentences: slightly smaller so it does not dominate the line. */
+.md-typeset code { font-size: 0.84em; }
+
+/* Light theme: soft near-black instead of pure black. */
+[data-md-color-scheme="default"] {
+  --md-default-bg-color: #fcfcfd;            /* off-white page: less glare than pure white */
+  --md-default-fg-color: #1d2127;            /* headings, 15.8:1 */
+  --md-default-fg-color--light: #535c68;     /* secondary text, sidebar, 6.6:1 */
+  --md-typeset-color: #2f343b;               /* body text, 12.2:1 */
+  --md-typeset-a-color: #3a4aa8;             /* links, 7.5:1 */
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Dark theme, VS Code style. Page base rgb(35, 39, 46); header a darkened version of the light
+   theme's indigo, so both themes look like one site; code and footer one step darker than the page;
+   soft grey-white text; calm blue links.
+   --------------------------------------------------------------------------------------------- */
+[data-md-color-scheme="slate"] {
+  /* surfaces */
+  --md-default-bg-color: #23272e;            /* page: rgb(35, 39, 46) */
+  --md-default-bg-color--light: rgba(35, 39, 46, 0.54);
+  --md-default-bg-color--lighter: rgba(35, 39, 46, 0.26);
+  --md-default-bg-color--lightest: rgba(35, 39, 46, 0.07);
+  --md-primary-fg-color: #283158;            /* header and tab bar: the light theme's indigo, darkened */
+  --md-primary-fg-color--light: #333e6b;
+  --md-primary-fg-color--dark: #1f2645;
+  --md-primary-bg-color: #eef0f4;            /* header text, 11.0:1 */
+  --md-primary-bg-color--light: rgba(238, 240, 244, 0.72);
+  --md-footer-bg-color: #1b1e24;
+  --md-footer-bg-color--dark: #16191d;
+
+  /* text */
+  --md-default-fg-color: #e8ebf0;            /* headings, 12.5:1 */
+  --md-default-fg-color--light: #a7afbc;     /* secondary text, sidebar, 6.8:1 */
+  --md-default-fg-color--lighter: #6f7887;
+  --md-default-fg-color--lightest: #343a44;  /* rules and borders */
+  --md-typeset-color: #d3d8e0;               /* body text, 10.5:1 */
+
+  /* links and accents */
+  --md-typeset-a-color: #93b0f0;             /* 6.9:1 */
+  --md-accent-fg-color: #b1c6f5;
+  --md-accent-fg-color--transparent: rgba(147, 176, 240, 0.1);
+
+  /* code */
+  --md-code-bg-color: #1b1e24;
+  --md-code-fg-color: #d4d9e1;
+  --md-code-hl-color: rgba(136, 166, 234, 0.15);
+
+  /* tables */
+  --md-typeset-table-color: #343a44;
+  --md-typeset-table-color--light: rgba(52, 58, 68, 0.5);
+}
+
+/* Header and tab bar share one surface; a thin line separates them from the page. */
+[data-md-color-scheme="slate"] .md-header,
+[data-md-color-scheme="slate"] .md-tabs {
+  background-color: var(--md-primary-fg-color);
+}
+[data-md-color-scheme="slate"] .md-tabs {
+  border-bottom: 1px solid #1f2645;
+}
+
+/* Table header row slightly raised, as in the light theme. */
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background-color: #2a2f37;
+}
+
+/* Footer: page dates and previous/next links in the same calm tone as the rest of the page. */
+.md-source-file { margin-top: 2.5em; }
+.md-footer__title { font-size: 0.85rem; }
+
+/* Narrow screens (phones, tablets, half-width windows): the slide-out menu opens below the header
+   instead of covering it, so the site title, search and theme toggle stay visible. */
+@media screen and (max-width: 76.234375em) {
+  .md-sidebar--primary {
+    top: 2.4rem;                             /* header height */
+    height: calc(100% - 2.4rem);
+  }
 }

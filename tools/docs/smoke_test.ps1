@@ -8,10 +8,12 @@ try {
     $py = Join-Path $venv "Scripts\python.exe"
     & $py -m pip install --quiet -r tools/docs/requirements.txt
     if ($LASTEXITCODE) { throw "pip install failed" }
-    # git-revision-date-localized warns (fatal in strict mode) for files git does not track yet.
-    # Disable it for this run until docs/ is committed.
-    $tracked = git ls-files docs
-    if ($tracked) { $env:DOCS_GIT_DATES = "true" } else { $env:DOCS_GIT_DATES = "false"; Write-Host "docs/ not tracked yet: git date plugin disabled for this run." }
+    # git-revision-date-localized warns (fatal in strict mode) on pages git does not track yet
+    # (it timestamps them twice with the clock). Untracked drafts are normal while editing, so skip
+    # the date stamps for this run when there are any; CI only sees committed pages.
+    $untracked = git ls-files --others --exclude-standard docs -- "*.md"
+    if ($untracked) { $env:DOCS_GIT_DATES = "false"; Write-Host "Untracked pages ($($untracked -join ', ')): page dates skipped for this run." } else { $env:DOCS_GIT_DATES = "true" }
+    $env:DOCS_PRIVACY = "false"   # privacy plugin needs symlinks on Windows; CI (Linux) keeps it on
     & $py -m mkdocs build --strict
     if ($LASTEXITCODE) { throw "mkdocs build --strict failed" }
     & $py tools/docs/check_wikilink_leak.py

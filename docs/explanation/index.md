@@ -5,7 +5,5 @@ doc:
 ---
 # Explanation
 
-Why things are built the way they are: architecture, rationale and trade-offs.
+Why things are built the way they are
 
-No explanation pages are published yet. Pages appear here once they have been verified on the robot and
-reviewed.

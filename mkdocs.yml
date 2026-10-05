@@ -6,7 +6,8 @@ strict: !ENV [DOCS_STRICT, true]   # set DOCS_STRICT=false only for a local prev
 
 theme:
   name: material
-  # Light/dark toggle in the header; the first visit follows the reader's system setting.
+  custom_dir: tools/docs/overrides   # main.html: no top bar; search, title and repo link in the sidebar
+  # Light/dark toggle at the top right; the first visit follows the reader's system setting.
   # Dark colours are tuned in docs/assets/extra.css (VS Code-style base #23272e).
   palette:
     - media: "(prefers-color-scheme: light)"
@@ -24,13 +25,15 @@ theme:
         icon: material/weather-sunny
         name: Switch to light mode
   font:
-    text: Source Sans 3
+    text: Source Serif 4     # body serif; the UI font (Source Sans 3) is added via extra_css below
     code: Roboto Mono
   features:
-    - navigation.tabs        # top-level sections as a horizontal bar
-    - navigation.indexes
+    # No navigation.sections / navigation.expand: top-level folders are collapsible (chevron) and only
+    # the folder holding the current page opens by itself. No top tab bar.
+    - navigation.indexes     # clicking a folder title opens its index.md; the chevron toggles it
     - content.code.copy
     - navigation.footer      # previous / next page links at the bottom of every page
+    - navigation.top         # back-to-top pill, shown after scrolling down and then up again
   icon:
     repo: fontawesome/brands/github
 
@@ -46,6 +49,9 @@ extra:
       name: Tech United website
 
 extra_css:
+  # UI font for sidebar, header, TOC and tables. The privacy plugin downloads this stylesheet and
+  # its font files at build time (CI) and serves them from this site.
+  - https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap
   - assets/extra.css
 
 # NOTE: Material for MkDocs is in maintenance mode until 2027-05-05.
@@ -67,6 +73,7 @@ plugins:
 markdown_extensions:
   - admonition
   - toc:
+      title: On this page
       permalink: true
   - pymdownx.superfences:
       custom_fences:

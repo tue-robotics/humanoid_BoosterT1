@@ -16,8 +16,7 @@ Documentation for the Booster T1 humanoid robot in Tech-United RoboCup @Home.
 | Understand how and why the robot and our system work this way | [[explanation/index\|Explanation]] |
 | Read past design decisions | [[adr/index\|Decisions]] |
 
-## Scope
 
-This site covers the Booster T1 platform as used by the team for @Home: setup, deployment and verified
-facts about the robot. It is not a copy of the vendor documentation. Every page here has been verified
+---
+This site covers the Booster T1 platform as used by the team for @Home. This includes setup, deployment and verified facts about the robot. It is not a copy of the vendor documentation. Every page here has been verified
 on the robot and reviewed before publication.

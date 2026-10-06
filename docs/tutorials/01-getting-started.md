@@ -20,7 +20,3 @@ ssh <user>@<robot-ip>
 ```
 
 `<user>` and the initial password are given in the vendor manual ([VD-[[]]01 §Operation Manual > Connect to Robot > Connect via Terminal]). `<robot-ip>` is the robot's wireless address on your network. Accept the host key fingerprint on the first connection. Leave the session with `exit`.
-
-## Where to go next
-
---//--

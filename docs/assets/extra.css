@@ -1,24 +1,29 @@
 /* ---------------------------------------------------------------------------------------------
-   Layout: a wide frame, and one centred reading column (about 76 characters) shared by text,
-   tables and code, so every left edge lines up.
+   Layout: a wide frame, and one centred reading column (31.7rem = 633 px, as on diataxis.fr; serif
+   text is wider per character than sans) shared by text, tables and code, so every left edge lines up.
    --------------------------------------------------------------------------------------------- */
 .md-grid {
   max-width: min(92vw, 1500px);
 }
+/* Material pins the column to the left sidebar with a very specific rule
+   ([dir=ltr] .md-sidebar--primary:not([hidden]) ~ .md-content > .md-content__inner), so the auto
+   margins need !important to centre the column between the left menu and the right contents. */
 .md-content__inner {
-  max-width: 76ch;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 31.7rem;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 /* ---------------------------------------------------------------------------------------------
-   Typography (both themes). Source Sans 3 for text, Roboto Mono for code (set in mkdocs.yml).
+   Typography (both themes), sizes measured on diataxis.fr (1rem = 20 px here, so 0.792rem = 15.8 px):
+   serif body (Source Serif 4, set in mkdocs.yml), sans UI chrome (Source Sans 3, loaded via
+   extra_css), Roboto Mono for code.
    Contrast is comfortable rather than maximal: body text about 11-12:1, above WCAG AAA (7:1).
    For long reading: no pure black on pure white (less glare), generous line height, kerning on.
    --------------------------------------------------------------------------------------------- */
 .md-typeset {
-  font-size: 0.85rem;
-  line-height: 1.72;
+  font-size: 0.792rem;
+  line-height: 1.5;
   font-kerning: normal;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -26,26 +31,36 @@
 /* Paragraph rhythm: a clear gap between paragraphs helps the eye find its place again. */
 .md-typeset p { margin: 0 0 1.05em; }
 
-/* Page title: large and light. Section headings: firm, for a clear hierarchy. */
-.md-typeset h1 {
-  color: var(--md-default-fg-color);
-  font-weight: 300;
-  font-size: 2.1em;
-  letter-spacing: -0.015em;
-  margin-bottom: 0.9em;
+/* UI chrome in the sans font; page content stays serif. */
+.md-header,
+.md-nav,
+.md-sidebar,
+.md-search,
+.md-top,
+.md-footer,
+.md-source-file,
+.md-typeset table {
+  font-family: 'Source Sans 3', sans-serif;
 }
+
+/* Headings: serif, bold for H1/H2, regular weight for H3 (as on diataxis.fr). */
+.md-typeset h1,
 .md-typeset h2,
 .md-typeset h3 {
   color: var(--md-default-fg-color);
-  font-weight: 700;
-  letter-spacing: -0.005em;
+  letter-spacing: normal;
 }
-.md-typeset h2 { font-size: 1.4em; margin-top: 1.9em; }
-.md-typeset h3 { font-size: 1.12em; margin-top: 1.6em; }
+.md-typeset h1 { font-weight: 700; font-size: 1.76rem; line-height: 1.25; margin-bottom: 0.9em; }
+.md-typeset h2 { font-weight: 700; font-size: 1.54rem; margin-top: 1.9em; }
+.md-typeset h3 { font-weight: 400; font-size: 1.54rem; margin-top: 1.6em; }
 
-/* Lists breathe a little; tables close to body size (Material's default is 13 px). */
+/* Body links: the theme link colour, underlined on hover only. */
+.md-typeset a { color: var(--md-typeset-a-color); }
+.md-typeset a:hover { text-decoration: underline; }
+
+/* Lists breathe a little; tables in the sans font at 14.4 px (Material's default is 13 px). */
 .md-typeset li { margin-bottom: 0.3em; }
-.md-typeset table:not([class]) { font-size: 0.8rem; }
+.md-typeset table:not([class]) { font-size: 0.72rem; }
 
 /* Code inside sentences: slightly smaller so it does not dominate the line. */
 .md-typeset code { font-size: 0.84em; }
@@ -57,72 +72,331 @@
   --md-default-fg-color--light: #535c68;     /* secondary text, sidebar, 6.6:1 */
   --md-typeset-color: #2f343b;               /* body text, 12.2:1 */
   --md-typeset-a-color: #3a4aa8;             /* links, 7.5:1 */
+  --dx-accent: #3a4aa8;                      /* active/hover nav, TOC (same as links) */
+  --dx-rule: #9aa6dc;                        /* soft blue separator lines */
+  --dx-line: #eeebee;                        /* quiet hairlines: TOC rail, search box */
 }
 
 /* ---------------------------------------------------------------------------------------------
-   Dark theme, VS Code style. Page base rgb(35, 39, 46); header a darkened version of the light
-   theme's indigo, so both themes look like one site; code and footer one step darker than the page;
-   soft grey-white text; calm blue links.
+   Dark theme, colours of diataxis.fr (Furo dark): near-black page #131416 with a pure black left
+   sidebar column (see below); code, footer and table headers one step lighter; soft grey text; calm
+   blue links instead of diataxis.fr's orange.
    --------------------------------------------------------------------------------------------- */
 [data-md-color-scheme="slate"] {
   /* surfaces */
-  --md-default-bg-color: #23272e;            /* page: rgb(35, 39, 46) */
-  --md-default-bg-color--light: rgba(35, 39, 46, 0.54);
-  --md-default-bg-color--lighter: rgba(35, 39, 46, 0.26);
-  --md-default-bg-color--lightest: rgba(35, 39, 46, 0.07);
-  --md-primary-fg-color: #283158;            /* header and tab bar: the light theme's indigo, darkened */
-  --md-primary-fg-color--light: #333e6b;
-  --md-primary-fg-color--dark: #1f2645;
-  --md-primary-bg-color: #eef0f4;            /* header text, 11.0:1 */
-  --md-primary-bg-color--light: rgba(238, 240, 244, 0.72);
-  --md-footer-bg-color: #1b1e24;
-  --md-footer-bg-color--dark: #16191d;
+  --md-default-bg-color: #131416;            /* page */
+  --md-default-bg-color--light: rgba(19, 20, 22, 0.54);
+  --md-default-bg-color--lighter: rgba(19, 20, 22, 0.26);
+  --md-default-bg-color--lightest: rgba(19, 20, 22, 0.07);
+  --md-footer-bg-color: #1a1c1e;
+  --md-footer-bg-color--dark: #131416;
 
   /* text */
-  --md-default-fg-color: #e8ebf0;            /* headings, 12.5:1 */
-  --md-default-fg-color--light: #a7afbc;     /* secondary text, sidebar, 6.8:1 */
-  --md-default-fg-color--lighter: #6f7887;
-  --md-default-fg-color--lightest: #343a44;  /* rules and borders */
-  --md-typeset-color: #d3d8e0;               /* body text, 10.5:1 */
+  --md-default-fg-color: #e6e7e8;            /* headings, 15:1 */
+  --md-default-fg-color--light: #9ca0a5;     /* secondary text, sidebar, 7.3:1 */
+  --md-default-fg-color--lighter: #81868d;
+  --md-default-fg-color--lightest: #303335;  /* rules and borders */
+  --md-typeset-color: #cfd0d0;               /* body text, 12.6:1 */
 
   /* links and accents */
   --md-typeset-a-color: #93b0f0;             /* 6.9:1 */
+  --dx-accent: #93b0f0;
+  --dx-rule: #3d4a78;
+  --dx-line: #303335;                        /* quiet hairlines: TOC rail, search box */
+  --dx-sidebar-bg: #000000;                  /* left sidebar column, darker than the page */
   --md-accent-fg-color: #b1c6f5;
   --md-accent-fg-color--transparent: rgba(147, 176, 240, 0.1);
 
   /* code */
-  --md-code-bg-color: #1b1e24;
-  --md-code-fg-color: #d4d9e1;
+  --md-code-bg-color: #1a1c1e;
+  --md-code-fg-color: #d4d5d6;
   --md-code-hl-color: rgba(136, 166, 234, 0.15);
 
   /* tables */
-  --md-typeset-table-color: #343a44;
-  --md-typeset-table-color--light: rgba(52, 58, 68, 0.5);
+  --md-typeset-table-color: #303335;
+  --md-typeset-table-color--light: rgba(48, 51, 53, 0.5);
 }
 
-/* Header and tab bar share one surface; a thin line separates them from the page. */
-[data-md-color-scheme="slate"] .md-header,
-[data-md-color-scheme="slate"] .md-tabs {
-  background-color: var(--md-primary-fg-color);
+/* ---------------------------------------------------------------------------------------------
+   Top of the page: no header bar. tools/docs/overrides/main.html keeps only the light/dark toggle
+   (top right) and, on narrow screens, the drawer button (top left). The header takes no space and
+   is not sticky, so both scroll away with the page; Material's JS notices that the header is not
+   sticky and stops reserving room for it. No colour, shadow or border.
+   --------------------------------------------------------------------------------------------- */
+.md-header {
+  position: relative;
+  height: 0;
+  background: none;
+  box-shadow: none;
+  border: 0;
+  color: var(--md-default-fg-color--light);
 }
-[data-md-color-scheme="slate"] .md-tabs {
-  border-bottom: 1px solid #1f2645;
+.md-header__inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  justify-content: flex-end;
 }
+/* Material's JS needs a search button in the header (see main.html); it is never shown. */
+.md-header .md-header__button[for="__search"] { display: none; }
+/* Drawer button: pushes the toggle to the right. Material hides it on desktop. */
+.md-header__button[for="__drawer"] { margin-right: auto; }
+.md-header__button:hover { color: var(--dx-accent); opacity: 1; }
+/* Space above the sidebars. It is kept equal to the sidebars' own top padding (1.2rem) on purpose:
+   Material's JS sizes the sticky sidebars as the window height minus twice this margin, so that
+   they fill the window exactly once the page has scrolled. On narrow screens the content column
+   gets extra room for the drawer button instead. */
+.md-main__inner { margin-top: 1.2rem; }
+@media screen and (max-width: 76.234375em) {
+  .md-content { padding-top: 1.4rem; }
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Left sidebar, in the style of diataxis.fr: logo and site title, search box and repo link on top
+   (added in main.html), then the menu. Top-level folders are collapsible blocks (chevron, no
+   navigation.sections) separated by a thin line; the folder title is bold, ordinary links are
+   regular and muted, hover and the current page use the accent colour.
+   --------------------------------------------------------------------------------------------- */
+/* Material's own title and repo link inside the menu are replaced by ours (also in the drawer). */
+.md-nav--primary[data-md-level="0"] > .md-nav__title,
+.md-nav--primary > .md-nav__source { display: none; }
+.dx-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.1rem 0.44rem 0.6rem;
+  color: var(--md-default-fg-color);
+  font: 700 0.77rem/1.25 'Source Sans 3', sans-serif;
+}
+.dx-brand:hover { color: var(--dx-accent); }
+.dx-brand__logo { flex-shrink: 0; color: var(--dx-accent); }
+.dx-repo { padding: 0.5rem 0.44rem 0.7rem; }
+.dx-repo .md-source {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.66rem;
+}
+.dx-repo .md-source:hover { color: var(--dx-accent); opacity: 1; }
+.dx-repo .md-source__icon { width: 0.9rem; height: 0.9rem; flex-shrink: 0; }
+.dx-repo .md-source__icon svg { margin: 0; width: 0.9rem; height: 0.9rem; display: block; }
+.dx-repo .md-source__repository { margin: 0; padding: 0; max-width: none; }
+
+/* Menu: links 15.4 px, muted; top-level folders bold with a rule above each group. */
+.md-sidebar--primary .md-nav,
+.md-nav--primary .md-nav__item { font-size: 0.77rem; line-height: 1.35; }
+.md-nav--primary .md-nav__link { margin-top: 0; padding: 0.26rem 0.44rem; }
+.md-nav--primary > .md-nav__list > .md-nav__item {
+  margin: 0;
+  padding: 0.77rem 0;
+  border-top: 1px solid var(--dx-rule);
+}
+.md-nav--primary > .md-nav__list > .md-nav__item:first-child { padding-top: 0.2rem; border-top: 0; }
+.md-nav--primary > .md-nav__list > .md-nav__item > .md-nav__link,
+.md-nav--primary > .md-nav__list > .md-nav__item > .md-nav__container > .md-nav__link {
+  font-weight: 700;
+  color: var(--md-default-fg-color);
+}
+.md-nav__link {
+  font-weight: 400;
+  color: var(--md-default-fg-color--light);
+}
+.md-nav__link:hover,
+.md-nav__link:focus { color: var(--dx-accent); }
+.md-nav__link--active,
+.md-nav__item .md-nav__link--active { color: var(--dx-accent); font-weight: 400; }
+.md-nav--primary > .md-nav__list > .md-nav__item > .md-nav__link--active,
+.md-nav--primary > .md-nav__list > .md-nav__item > .md-nav__container > .md-nav__link--active {
+  color: var(--dx-accent);
+  font-weight: 700;
+}
+
+/* Right-hand table of contents, as on diataxis.fr: a small uppercase title ("On this page", set in
+   mkdocs.yml), a hairline rail on the left, 13.2 px links, accent colour on the active entry. */
+.md-sidebar--secondary .md-nav--secondary .md-nav__title {
+  padding: 0 0 0.35rem 0.44rem;
+  background: none;
+  box-shadow: none;
+  color: var(--md-default-fg-color--lighter);
+  font-size: 0.55rem;
+  font-weight: 400;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+.md-sidebar--secondary .md-nav--secondary > .md-nav__list {
+  padding-left: 0.44rem;
+  border-left: 1px solid var(--dx-line);
+}
+.md-sidebar--secondary .md-nav--secondary .md-nav__link {
+  margin-top: 0.3em;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.66rem;
+  line-height: 1.35;
+}
+.md-sidebar--secondary .md-nav--secondary .md-nav__link:hover,
+.md-sidebar--secondary .md-nav--secondary .md-nav__link--active { color: var(--dx-accent); }
 
 /* Table header row slightly raised, as in the light theme. */
 [data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
-  background-color: #2a2f37;
+  background-color: #1e2124;
 }
 
 /* Footer: page dates and previous/next links in the same calm tone as the rest of the page. */
 .md-source-file { margin-top: 2.5em; }
 .md-footer__title { font-size: 0.85rem; }
 
-/* Narrow screens (phones, tablets, half-width windows): the slide-out menu opens below the header
-   instead of covering it, so the site title, search and theme toggle stay visible. */
+/* ---------------------------------------------------------------------------------------------
+   Back-to-top button (navigation.top), as on diataxis.fr: a small pill on the page colour, accent
+   text, soft shadow. Material shows it after scrolling down and then up again.
+   --------------------------------------------------------------------------------------------- */
+.md-top {
+  top: 0.8rem;
+  padding: 0.25rem 0.75rem;
+  background-color: var(--md-default-bg-color);
+  border-radius: 1rem;
+  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.05), 0 0 1px rgba(107, 114, 128, 0.5);
+  color: var(--dx-accent);
+  font: 400 0.66rem/1.3 'Source Sans 3', sans-serif;
+}
+.md-top:hover,
+.md-top:focus {
+  background-color: var(--md-default-bg-color);
+  color: var(--dx-accent);
+  opacity: 0.75;
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Search box in the sidebar (Material's own search, moved there by main.html). Material styles the
+   open state through the header, which no longer exists, so the open state is restyled here:
+   - desktop: the results open as a 34rem panel over the content, with a dim layer behind it;
+     position: fixed lets the panel leave the sidebar without being clipped by its scrolling;
+   - drawer (narrow screens): the results open in the menu itself, between the box and the links.
+   --------------------------------------------------------------------------------------------- */
+.md-sidebar .md-search { padding: 0 0 0.3rem; }
+.md-sidebar .md-search__inner {
+  float: none;
+  width: 100%;
+  height: auto;
+  padding: 0;
+  opacity: 1;
+  overflow: visible;
+  position: relative;
+  transform: none;
+  transition: none;
+}
+.md-sidebar .md-search__form {
+  height: 1.8rem;
+  border: 1px solid var(--dx-line);
+  border-radius: 0.2rem;
+  background: none;
+  box-shadow: none;
+}
+.md-sidebar .md-search__form:hover { background: none; border-color: var(--md-default-fg-color--lighter); }
+.md-sidebar .md-search__form:focus-within { border-color: var(--dx-accent); }
+.md-sidebar .md-search__input {
+  padding-left: 2.2rem;
+  color: var(--md-default-fg-color);
+  font-size: 0.72rem;
+}
+.md-sidebar .md-search__input::placeholder { color: var(--md-default-fg-color--light); }
+/* Only the magnifier, not the "back" arrow Material shows on phones. */
+.md-sidebar .md-search__icon[for="__search"] svg:last-child { display: none; }
+.md-sidebar .md-search__icon[for="__search"] svg:first-child { display: block; opacity: 1; transform: none; }
+/* Clear button appears as soon as there is a query. */
+[data-md-toggle="search"]:checked ~ .md-container .md-search__input:valid ~ .md-search__options > .md-icon {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+/* Results panel: closed by default, open while the search is active. */
+.md-sidebar .md-search__overlay { display: none; }
+.md-sidebar .md-search__output {
+  display: none;
+  position: static;
+  width: 100%;
+  top: auto;
+  opacity: 1;
+  margin-top: 0.2rem;
+  border-radius: 0.2rem;
+  overflow: hidden;
+}
+.md-sidebar .md-search__scrollwrap { width: 100%; max-height: 55vh; }
+[data-md-toggle="search"]:checked ~ .md-container .md-search__output { display: block; }
+
+/* ---------------------------------------------------------------------------------------------
+   Desktop only (sidebar always visible): wide results panel, and the dark sidebar column.
+   --------------------------------------------------------------------------------------------- */
+@media screen and (min-width: 76.25em) {
+  /* Raised while searching so the panel and the dim layer sit above the content and the TOC. */
+  [data-md-toggle="search"]:checked ~ .md-container .md-sidebar--primary { z-index: 5; }
+  [data-md-toggle="search"]:checked ~ .md-container .md-search__overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+    opacity: 1;
+    z-index: 0;
+  }
+  [data-md-toggle="search"]:checked ~ .md-container .md-search__form {
+    position: relative;
+    z-index: 2;
+    background: var(--md-default-bg-color);
+  }
+  .md-sidebar .md-search__output {
+    position: fixed;          /* no insets: stays right under the box, but outside the sidebar's clipping */
+    width: 34rem;
+    max-width: 90vw;
+    z-index: 1;
+    box-shadow: var(--md-shadow-z3);
+  }
+  .md-sidebar .md-search__scrollwrap { width: 34rem; max-width: 90vw; max-height: 75vh; }
+
+  /* Dark column, as on diataxis.fr: pure black from the very left viewport edge to the right edge
+     of the sidebar, from the top of the page to the bottom of the main area. The grid is narrower
+     than the viewport, so the tint reaches out with a negative left offset. Material's sidebar is
+     only as tall as the viewport and sticks while scrolling, so the tint extends one viewport
+     height up and down from it and .md-main clips it: it then fills the whole column and follows
+     the sticky sidebar. Own stacking context keeps the tint behind the menu text. */
+  [data-md-color-scheme="slate"] .md-sidebar--primary { z-index: 0; }
+  [data-md-color-scheme="slate"] .md-sidebar--primary::before {
+    content: "";
+    position: absolute;
+    top: -100vh;
+    height: 300vh;
+    right: 0;
+    left: -100vw;
+    z-index: -1;
+    background-color: var(--dx-sidebar-bg);
+  }
+  /* Clipping (not scrolling) keeps the overhang from adding scrollbars, and the footer stays clear
+     of the tint because it lies outside .md-main. */
+  [data-md-color-scheme="slate"] .md-main { overflow: clip; }
+}
+
+/* Sidebars stick to the top of the window now that no header sits above them. */
+.md-sidebar { top: 0; }
+
+/* Drawer (narrow screens): a plain sheet, no coloured title bar. Brand, search box and repo link
+   sit on top; the menu fills the rest and keeps Material's sliding sub-menus, which are positioned
+   against the menu box (position: relative), so they cover the menu but not the brand or search. */
 @media screen and (max-width: 76.234375em) {
-  .md-sidebar--primary {
-    top: 2.4rem;                             /* header height */
-    height: calc(100% - 2.4rem);
+  .md-sidebar--primary .md-sidebar__inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-top: 0.8rem;
+  }
+  .md-sidebar--primary .md-nav--primary[data-md-level="0"] {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    height: auto;
   }
 }

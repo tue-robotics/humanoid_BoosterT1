@@ -4,7 +4,7 @@ doc:
   adr_status: accepted
   adr_date: 2026-09-18
 ---
-# 0001 Docs as code
+# 0001 Docs as code (Example page)
 
 Status: accepted (2026-09-18)
 

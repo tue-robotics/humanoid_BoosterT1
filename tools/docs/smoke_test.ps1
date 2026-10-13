@@ -1,13 +1,10 @@
 # Local smoke test for the L1 docs. The venv lives outside the repo.
 $ErrorActionPreference = "Stop"
 $repo = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$venv = Join-Path $env:TEMP "l1-docs-venv"
+. (Join-Path $PSScriptRoot "venv.ps1")
 Push-Location $repo
 try {
-    if (-not (Test-Path $venv)) { python -m venv $venv; if ($LASTEXITCODE) { throw "venv creation failed" } }
-    $py = Join-Path $venv "Scripts\python.exe"
-    & $py -m pip install --quiet -r tools/docs/requirements.txt
-    if ($LASTEXITCODE) { throw "pip install failed" }
+    $py = Initialize-DocsVenv $repo
     # git-revision-date-localized warns (fatal in strict mode) on pages git does not track yet
     # (it timestamps them twice with the clock). Untracked drafts are normal while editing, so skip
     # the date stamps for this run when there are any; CI only sees committed pages.

@@ -1,0 +1,74 @@
+{#- Theme override: no top bar. Material's header (logo, title, search, repo link, palette) is
+    reduced to the drawer button (narrow screens) and the light/dark toggle; the logo, site title,
+    search and repo link move into the top of the left sidebar. Layout and colours: docs/assets/extra.css.
+    Everything else comes from Material's base.html, so authors change nothing. -#}
+{% extends "base.html" %}
+
+{% block header %}
+  <header class="md-header" data-md-component="header">
+    <div class="md-header__inner md-grid">
+      <label class="md-header__button md-icon" for="__drawer">
+        {% set icon = config.theme.icon.menu or "material/menu" %}
+        {% include ".icons/" ~ icon ~ ".svg" %}
+      </label>
+      {% if config.theme.palette %}
+        {% if not config.theme.palette is mapping %}
+          {% include "partials/palette.html" %}
+        {% endif %}
+      {% endif %}
+      {% if not config.theme.palette is mapping %}
+        {% include "partials/javascripts/palette.html" %}
+      {% endif %}
+      {#- Material's search script looks for this button inside the header and disables the whole
+          search without it. It stays invisible (extra.css); the search box lives in the sidebar. -#}
+      {% if "material/search" in config.plugins %}
+        {% set search = config.plugins["material/search"] | attr("config") %}
+        {% if search.enabled %}
+          <label class="md-header__button md-icon" for="__search">
+            {% set icon = config.theme.icon.search or "material/magnify" %}
+            {% include ".icons/" ~ icon ~ ".svg" %}
+          </label>
+        {% endif %}
+      {% endif %}
+    </div>
+  </header>
+{% endblock %}
+
+{#- Same structure as Material's site_nav block, with the brand, search and repo link added above the
+    navigation tree. Material's own title and repo link inside nav.html are hidden in extra.css. -#}
+{% block site_nav %}
+  {% if nav %}
+    {% if page.meta and page.meta.hide %}
+      {% set hidden = "hidden" if "navigation" in page.meta.hide %}
+    {% endif %}
+    <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" {{ hidden }}>
+      <div class="md-sidebar__scrollwrap">
+        <div class="md-sidebar__inner">
+          <a class="dx-brand" href="{{ config.extra.homepage | d(nav.homepage.url, true) | url }}" title="{{ config.site_name | e }}">
+            <span class="dx-brand__logo md-icon">{% include "partials/logo.html" %}</span>
+            <span class="dx-brand__name">{{ config.site_name }}</span>
+          </a>
+          {% include "partials/search.html" %}
+          {% if config.repo_url %}
+            <div class="dx-repo">
+              {% include "partials/source.html" %}
+            </div>
+          {% endif %}
+          {% include "partials/nav.html" %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  {% if "toc.integrate" not in features %}
+    {% if page.meta and page.meta.hide %}
+      {% set hidden = "hidden" if "toc" in page.meta.hide %}
+    {% endif %}
+    <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" {{ hidden }}>
+      <div class="md-sidebar__scrollwrap">
+        <div class="md-sidebar__inner">
+          {% include "partials/toc.html" %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

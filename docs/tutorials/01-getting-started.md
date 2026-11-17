@@ -19,4 +19,6 @@ Put your laptop on the same wireless network as the robot (Tech_united), then lo
 ssh <user>@<robot-ip>
 ```
 
-`<user>` and the initial password are given in the vendor manual ([VD-[[]]01 §Operation Manual > Connect to Robot > Connect via Terminal]). `<robot-ip>` is the robot's wireless address on your network. Accept the host key fingerprint on the first connection. Leave the session with `exit`.
+For `<user>` and the initial password, ask a team member. 
+
+`<robot-ip>` is the robot's wireless address, which is written on the robot. Accept the host key fingerprint on the first connection. Leave the session with `exit`.

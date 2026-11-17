@@ -1,22 +1,37 @@
 # Documentation CI.
-#   Pull requests:     strict build + wikilink check only (same as tools/docs/smoke_test.ps1).
-#                      A broken link, invalid frontmatter or a leaked [[wikilink]] turns the check red.
-#   Merged to master:  the same check, then publish to GitHub Pages:
-#                      https://tue-robotics.github.io/humanoid_BoosterT1/
-# Nothing unreviewed is published: only what is merged into master goes live.
+#   Pull requests:      strict build + wikilink check only (same as tools/docs/smoke_test.ps1).
+#                       A broken link, invalid frontmatter or a leaked [[wikilink]] turns the check red.
+#   Push to master:     rebuild and publish the whole site to GitHub Pages:
+#                         https://tue-robotics.github.io/humanoid_BoosterT1/            master (reviewed)
+#                         https://tue-robotics.github.io/humanoid_BoosterT1/branch/<b>/ every other branch
+#                       master is built strictly. When a branch's newest commit fails to build, the
+#                       commit that built last time is published instead, with a banner saying so.
+#                       A picker in the sidebar switches branch; preview pages carry a "not reviewed"
+#                       banner. Script: tools/docs/build_all.py.
+#   Push to a branch,   ask for a master run (below), so the branch preview is refreshed at once.
+#   or delete one:      GitHub Pages only accepts deployments started from master, hence the detour.
+#   Every 10 minutes:   compare all branch heads with the live site and rebuild if any changed.
+#                       This also covers branches that still carry an older copy of this file
+#                       (their pushes start nothing). GitHub may delay these runs, and it pauses
+#                       them after 60 days without any activity in the repo.
+#   Actions tab:        "Run workflow" on master re-publishes everything by hand.
+# Only master is reviewed. The branches are public on GitHub anyway; the previews only render them.
 name: docs
 
 on:
   pull_request:
   push:
-    branches: [master]
-  workflow_dispatch: # manual re-publish from the Actions tab
+  delete:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   check:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,15 +47,58 @@ jobs:
         run: mkdocs build --strict
       - name: No unconverted wikilinks in the output
         run: python tools/docs/check_wikilink_leak.py
-      - name: Hand the built site to the deploy job
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+
+  # A push to another branch cannot deploy itself; it starts this workflow on master instead.
+  # (A run started with GITHUB_TOKEN may start workflow_dispatch runs, unlike other events.)
+  request-publish:
+    if: github.event_name == 'push' && github.ref != 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - run: gh workflow run docs.yml --repo "$GITHUB_REPOSITORY" --ref master
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  build:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: docs-build
+      cancel-in-progress: true # a newer push makes this build outdated
+    outputs:
+      changed: ${{ steps.changed.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # all branches, and full history for the page dates
+      - name: Anything new since the live site was built?
+        id: changed
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "changed=$(python3 tools/docs/build_all.py --changed)" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.changed.outputs.changed == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: tools/docs/requirements.txt
+      - if: steps.changed.outputs.changed == 'true'
+        run: pip install -r tools/docs/requirements.txt
+      - name: Build master and every branch preview
+        if: steps.changed.outputs.changed == 'true'
+        run: python tools/docs/build_all.py
+      - if: steps.changed.outputs.changed == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
           path: site
 
   deploy:
-    needs: check
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+    needs: build
+    if: needs.build.outputs.changed == 'true'
     runs-on: ubuntu-latest
     permissions:
       pages: write

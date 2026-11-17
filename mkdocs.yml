@@ -28,12 +28,17 @@ theme:
     text: Source Serif 4     # body serif; the UI font (Source Sans 3) is added via extra_css below
     code: Roboto Mono
   features:
-    # No navigation.sections / navigation.expand: top-level folders are collapsible (chevron) and only
-    # the folder holding the current page opens by itself. No top tab bar.
-    - navigation.indexes     # clicking a folder title opens its index.md; the chevron toggles it
+    # Flat sidebar: every folder is shown open, with its pages listed under it; nothing collapses.
+    # (On a phone the menu drawer still opens one folder at a time; that is Material's behaviour.)
+    # No top tab bar.
+    - navigation.sections    # top-level folders become fixed group headings, not collapsible blocks
+    - navigation.expand      # any deeper folders also start open
+    - navigation.indexes     # clicking a folder title opens its index.md
     - content.code.copy
     - navigation.footer      # previous / next page links at the bottom of every page
     - navigation.top         # back-to-top pill, shown after scrolling down and then up again
+  logo: assets/images/tu-athome-logo.png       # Tech United @Home team logo (sidebar)
+  favicon: assets/images/tu-athome-logo.png
   icon:
     repo: fontawesome/brands/github
 

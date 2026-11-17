@@ -9,7 +9,7 @@
    ([dir=ltr] .md-sidebar--primary:not([hidden]) ~ .md-content > .md-content__inner), so the auto
    margins need !important to centre the column between the left menu and the right contents. */
 .md-content__inner {
-  max-width: 31.7rem;
+  max-width: 40rem;   /* wider text column: less empty space on both sides */
   margin-left: auto !important;
   margin-right: auto !important;
 }
@@ -154,8 +154,8 @@
 
 /* ---------------------------------------------------------------------------------------------
    Left sidebar, in the style of diataxis.fr: logo and site title, search box and repo link on top
-   (added in main.html), then the menu. Top-level folders are collapsible blocks (chevron, no
-   navigation.sections) separated by a thin line; the folder title is bold, ordinary links are
+   (added in main.html), then the menu. Top-level folders are open groups (navigation.sections, no
+   collapsing) separated by a thin line; the folder title is bold, ordinary links are
    regular and muted, hover and the current page use the accent colour.
    --------------------------------------------------------------------------------------------- */
 /* Material's own title and repo link inside the menu are replaced by ours (also in the drawer). */
@@ -167,10 +167,11 @@
   gap: 0.4rem;
   padding: 0.1rem 0.44rem 0.6rem;
   color: var(--md-default-fg-color);
-  font: 700 0.77rem/1.25 'Source Sans 3', sans-serif;
+  font: 700 0.72rem/1.25 'Source Sans 3', sans-serif;
 }
 .dx-brand:hover { color: var(--dx-accent); }
 .dx-brand__logo { flex-shrink: 0; color: var(--dx-accent); }
+.dx-brand__logo img { display: block; width: auto; height: 2.6rem; }
 .dx-repo { padding: 0.5rem 0.44rem 0.7rem; }
 .dx-repo .md-source {
   display: flex;
@@ -184,16 +185,23 @@
 .dx-repo .md-source__icon svg { margin: 0; width: 0.9rem; height: 0.9rem; display: block; }
 .dx-repo .md-source__repository { margin: 0; padding: 0; max-width: none; }
 
-/* Menu: links 15.4 px, muted; top-level folders bold with a rule above each group. */
+/* Menu: links 13.6 px, muted; top-level folders bold with a rule above each group.
+   Every line of text starts at the same left edge as the logo, search, branch picker and repo
+   link (no indent for folder titles or pages): the links get no side padding, and the folder
+   title's inner link (navigation.indexes puts one inside a container) none either. */
 .md-sidebar--primary .md-nav,
-.md-nav--primary .md-nav__item { font-size: 0.77rem; line-height: 1.35; }
-.md-nav--primary .md-nav__link { margin-top: 0; padding: 0.26rem 0.44rem; }
+.md-nav--primary .md-nav__item { font-size: 0.68rem; line-height: 1.35; }
+.md-nav--primary .md-nav__item { padding-left: 0; padding-right: 0; }
+.md-nav--primary .md-nav__link,
+.md-nav--primary .md-nav__container > .md-nav__link { margin: 0; padding: 0.12rem 0; }
+.md-nav--primary .md-nav__list { margin: 0; padding: 0; }
+.md-sidebar--primary .md-nav--primary > .md-nav__list { padding: 0 0.44rem; } /* = logo's inset */
 .md-nav--primary > .md-nav__list > .md-nav__item {
   margin: 0;
-  padding: 0.77rem 0;
+  padding: 0.4rem 0;
   border-top: 1px solid var(--dx-rule);
 }
-.md-nav--primary > .md-nav__list > .md-nav__item:first-child { padding-top: 0.2rem; border-top: 0; }
+.md-nav--primary > .md-nav__list > .md-nav__item:first-child { padding-top: 0.1rem; border-top: 0; }
 .md-nav--primary > .md-nav__list > .md-nav__item > .md-nav__link,
 .md-nav--primary > .md-nav__list > .md-nav__item > .md-nav__container > .md-nav__link {
   font-weight: 700;

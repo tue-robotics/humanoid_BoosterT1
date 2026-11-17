@@ -4,7 +4,9 @@ Nothing to keep in sync: rename, add, move or delete pages and folders in Obsidi
 
   Sections (top tabs)  = folders under docs/. Order: `doc: order: N` in the folder's index.md
                          frontmatter, then alphabetical. Tab label: that index.md's first "# Heading".
-  Pages in a section   = its .md files, index.md first, then by file name (prefix 01-, 02- to order).
+  Pages in a section   = its .md files, index.md first, then by `doc: order: N` in the page's
+                         frontmatter (no order counts as 50; 99 keeps a page last), then by file name
+                         (prefix 01-, 02- to order).
   Page title           = first "# Heading"; if the page has none, the file name without its number
                          prefix: "01-getting-started" -> "Getting started", "01 Getting Started" -> "Getting Started".
 Folders without any .md file (e.g. assets/) are skipped.
@@ -41,11 +43,16 @@ def _read(f):
 def _section(folder, tree, pages):
     """Return a nav entry for one folder: {title: [index, pages..., subsections...]}."""
     index = posixpath.join(folder, "index.md") if folder else "index.md"
-    files = sorted(p for p in tree.get(folder, []) if p != index)
+    files = sorted((p for p in tree.get(folder, []) if p != index), key=lambda p: (_page_order(p, pages), p))
     subs = sorted(_order_key(d, pages) + (d,) for d in tree if posixpath.dirname(d) == folder and d != folder)
     items = ([index] if index in pages else []) + files + [_section(d, tree, pages) for *_, d in subs]
     title = (pages[index][0] if index in pages else None) or pretty(folder)
     return {title: items}
+
+
+def _page_order(page, pages):
+    order = pages[page][1]
+    return order if isinstance(order, (int, float)) else 50
 
 
 def _order_key(folder, pages):

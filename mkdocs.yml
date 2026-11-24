@@ -77,6 +77,8 @@ plugins:
 
 markdown_extensions:
   - admonition
+  - attr_list              # { width="360" } after an image sets its display size
+  - md_in_html             # <figure markdown="span">: centred image with a <figcaption> below
   - toc:
       title: On this page
       permalink: true

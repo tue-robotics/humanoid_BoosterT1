@@ -4,11 +4,13 @@ doc:
   verified_on: "software 1.8.0.9, both boards"
 ---
 # Hardware overview
-Booster is the humanoid service robot of Tech United @Home at Eindhoven University of Technology. It is a Booster T1 robot made by Booster Robotics.
+Booster is the humanoid service robot of Tech United @Home at Eindhoven University of Technology. It is a Booster T1 robot developed by Booster Robotics.
 
 Robot number: TU-BT1-01
 
-[placeholder for picture]
+<figure markdown="span">
+  ![TU-BT1-01 standing on the lab football field](../assets/images/t1-tu-bt1-01.jpg){ width="360" }<figcaption>TU-BT1-01</figcaption>
+</figure>
 
 ## Computers
 

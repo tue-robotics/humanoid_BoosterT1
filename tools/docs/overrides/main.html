@@ -1,5 +1,5 @@
 {#- Theme override: no top bar. Material's header (logo, title, search, repo link, palette) is
-    reduced to the drawer button (narrow screens) and the light/dark toggle; the logo, site title,
+    reduced to the drawer button and logo (narrow screens) and the light/dark toggle; the logo, site title,
     search and repo link move into the top of the left sidebar. Layout and colours: docs/assets/extra.css.
     Everything else comes from Material's base.html, so authors change nothing. -#}
 {% extends "base.html" %}
@@ -11,6 +11,7 @@
         {% set icon = config.theme.icon.menu or "material/menu" %}
         {% include ".icons/" ~ icon ~ ".svg" %}
       </label>
+      <a class="dx-topbar__logo" href="{{ config.extra.homepage | d(nav.homepage.url, true) | url }}" title="{{ config.site_name | e }}">{% include "partials/logo.html" %}</a>
       {% if config.theme.palette %}
         {% if not config.theme.palette is mapping %}
           {% include "partials/palette.html" %}
@@ -72,3 +73,21 @@
     </div>
   {% endif %}
 {% endblock %}
+
+{#- Same structure as Material's container block, with the footer moved from below the whole page into
+    the content column, so it lines up with the text and the sidebars run to the bottom of the page. -#}
+{% block container %}
+  <div class="md-content" data-md-component="content">
+    {% if "navigation.path" in features %}
+      {% include "partials/path.html" %}
+    {% endif %}
+    <article class="md-content__inner md-typeset">
+      {% block content %}
+        {% include "partials/content.html" %}
+      {% endblock %}
+    </article>
+    {% include "partials/footer.html" %}
+  </div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

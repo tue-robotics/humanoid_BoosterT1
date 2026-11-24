@@ -29,7 +29,7 @@ theme:
     code: Roboto Mono
   features:
     # Flat sidebar: every folder is shown open, with its pages listed under it; nothing collapses.
-    # (On a phone the menu drawer still opens one folder at a time; that is Material's behaviour.)
+    # (The phone drawer shows the same open list; see "Narrow screens" in docs/assets/extra.css.)
     # No top tab bar.
     - navigation.sections    # top-level folders become fixed group headings, not collapsible blocks
     - navigation.expand      # any deeper folders also start open

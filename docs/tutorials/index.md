@@ -7,5 +7,5 @@ doc:
 
 For someone who has never used the robot.
 
-- [[01-getting-started|Getting started with the Booster T1]]: power on, log in, identify the firmware, check the camera.
+- [[01-getting-started|Getting started with Cosmo]]: power on, log in, identify the firmware, check the camera.
 

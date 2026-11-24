@@ -27,7 +27,7 @@ Write documentation in Markdown, keep it in Git on GitHub, and publish it with M
 
 Status: agreed within the team, still need to discuss with football team.
 ### Context
-We need to deploy code onto the robot's onboard PC, but we share the Booster with the football team. We need dedicated storage space on the robot so our code does not get mixed up with theirs.
+We need to deploy code onto the robot's onboard PC, but we share Cosmo with the football team. We need dedicated storage space on the robot so our code does not get mixed up with theirs.
 
 ### Decision
 - We agreed to create a folder named @home in the root directory and put all our code (or repository) inside it.

@@ -4,15 +4,15 @@ doc:
   verified_on: "2026-09-22"
   status: partial
 ---
-# System architecture of the T1 (example page)
+# System architecture of Cosmo (example page)
 
-An overview of how the Booster T1's software is put together, written so that a newcomer knows what runs where and which interfaces exist. It is deliberately limited to what has been observed on one robot; everything else is listed under [Gaps](#gaps) instead of being guessed.
+An overview of how Cosmo's software is put together, written so that a newcomer knows what runs where and which interfaces exist. It is deliberately limited to what has been observed on one robot; everything else is listed under [Gaps](#gaps) instead of being guessed.
 
 **Source line.** Observations on one T1 (perception board, firmware T1 2.3.4, ROS 2 Humble): first access session 2026-09-08, RPC and agent survey 2026-09-15, camera session 2026-09-22; MuJoCo checks 2026-10-02. Nothing was observed on the second computer (motion control board).
 
 ## 1. Scope
 
-The T1 is used here as a platform for RoboCup @Home. This page explains the structure of its onboard software and the interfaces a developer meets first. It does not explain how to drive the robot; the how-to and reference pages do.
+Cosmo is used here as a platform for RoboCup @Home. This page explains the structure of its onboard software and the interfaces a developer meets first. It does not explain how to drive the robot; the how-to and reference pages do.
 
 ## 2. Context
 

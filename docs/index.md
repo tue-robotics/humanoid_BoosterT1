@@ -2,9 +2,9 @@
 doc:
   quadrant: landing
 ---
-# Booster T1 Documentation for Tech United @Home
+# Cosmo Documentation
 
-Documentation for the Booster T1 humanoid robot in Tech-United RoboCup @Home.
+Documentation for Cosmo, the Booster T1 humanoid robot of Tech United RoboCup @Home.
 
 ## I want to...
 
@@ -18,5 +18,5 @@ Documentation for the Booster T1 humanoid robot in Tech-United RoboCup @Home.
 
 
 ---
-This site covers the Booster T1 platform as used by the team for @Home. This includes setup, deployment and verified facts about the robot. It is not a copy of the vendor documentation. Every page here has been verified
+This site covers Cosmo as used by the team for @Home. This includes setup, deployment and verified facts about the robot. It is not a copy of the vendor documentation. Every page here has been verified
 on the robot and reviewed before publication.

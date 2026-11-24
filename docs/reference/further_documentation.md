@@ -3,7 +3,7 @@ doc:
   order: 99   # always the last page of Reference
   quadrant: reference
 ---
-# Further documentation for Booster T1
+# Further documentation for Cosmo
 
 - [Booster T1 official documentation](http://www.docs.bipedal.de/projects/t1/html/index.html)
 - [Booster documentation centre](https://docs.booster.tech/)

@@ -4,17 +4,17 @@ doc:
   verified_on: "software 1.8.0.9, both boards"
 ---
 # Hardware overview
-Booster is the humanoid service robot of Tech United @Home at Eindhoven University of Technology. It is a Booster T1 robot developed by Booster Robotics.
+Cosmo is the humanoid service robot of Tech United @Home at Eindhoven University of Technology. It is a Booster T1 robot developed by Booster Robotics.
 
 Robot number: TU-BT1-01
 
 <figure markdown="span">
-  ![TU-BT1-01 standing on the lab football field](../assets/images/t1-tu-bt1-01.jpg){ width="360" }<figcaption>TU-BT1-01</figcaption>
+  ![Cosmo standing on the lab football field](../assets/images/t1-tu-bt1-01.jpg){ width="360" }<figcaption>Cosmo (TU-BT1-01)</figcaption>
 </figure>
 
 ## Computers
 
-The T1 has two boards. Both run Ubuntu 22.04.5.
+Cosmo has two boards. Both run Ubuntu 22.04.5.
 
 | Item           | x86 motion board                                          | AGX Orin perception board                                      |
 | -------------- | --------------------------------------------------------- | -------------------------------------------------------------- |
@@ -220,16 +220,16 @@ Limits are in degrees. The index here starts at 0; the `/joint_states` number in
 | 21 | Right Ankle Up | -23 to 49 | [UNKNOWN] `right_ankle_pitch_joint` (22) or roll (23) |
 | 22 | Right Ankle Down | -24 to 45 | [UNKNOWN] the other one of those two |
 
-![The T1 with every joint labelled by index 0 to 22](../assets/images/t1-joint-layout.png)
+![Cosmo with every joint labelled by index 0 to 22](../assets/images/t1-joint-layout.png)
 
 *Joint layout, front view, with the joint indices. The drawing labels joint 7 "Right Shoulder Pitch"; it is the right shoulder roll.*
 
 
-![The T1 in zero pose with the joint axes drawn in colour](../assets/images/t1-zero-pose-axes.png)
+![Cosmo in zero pose with the joint axes drawn in colour](../assets/images/t1-zero-pose-axes.png)
 
 *3D view with the joint axes at the zero position: X red, Y green, Z blue.*
 
-![Front view of the T1 in zero pose with joint axes and a height scale](../assets/images/t1-zero-pose-front.png)
+![Front view of Cosmo in zero pose with joint axes and a height scale](../assets/images/t1-zero-pose-front.png)
 
 *Front view in the zero pose, with joint axes and a height scale in metres on the left.*
 

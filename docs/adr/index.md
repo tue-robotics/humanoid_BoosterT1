@@ -22,15 +22,16 @@ Write documentation in Markdown, keep it in Git on GitHub, and publish it with M
 - Material is in maintenance mode until 2027-05-05, so the plugin stack stays minimal and replaceable.
 - Wikilinks are resolved at build time.
 
-# 0002 Devide the on-robot code with football team
+# 0002 Divide the on-robot code with football team
 13/10/2026
 
-Status: agreed within the team, still need to discuss with football team.
+Status: accepted; the football team is informed. The deployment protocol is still open.
 ### Context
-We need to deploy code onto the robot's onboard PC, but we share Cosmo with the football team. We need dedicated storage space on the robot so our code does not get mixed up with theirs.
+We need to deploy code onto the robot's onboard PC, but we share COSMO with the football team. We need dedicated storage space on the robot so our code does not get mixed up with theirs.
 
 ### Decision
-- We agreed to create a folder named @home in the root directory and put all our code (or repository) inside it.
+- All our code lives in the folder `athome` in the home folder of the Orin user. Nothing of ours goes on the x86 board for now.
+- `athome` is a plain colcon workspace; repositories are cloned into `athome/src`.
 - We will keep everything in a single repo for now, but split it into separate repositories in the future.
 
 # 0003 Robot choice

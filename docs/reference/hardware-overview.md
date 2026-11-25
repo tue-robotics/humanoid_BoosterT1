@@ -4,17 +4,17 @@ doc:
   verified_on: "software 1.8.0.9, both boards"
 ---
 # Hardware overview
-Cosmo is the humanoid service robot of Tech United @Home at Eindhoven University of Technology. It is a Booster T1 robot developed by Booster Robotics.
+COSMO is the humanoid service robot of Tech United @Home at Eindhoven University of Technology. It is a Booster T1 robot developed by Booster Robotics.
 
 Robot number: TU-BT1-01
 
 <figure markdown="span">
-  ![Cosmo standing on the lab football field](../assets/images/t1-tu-bt1-01.jpg){ width="360" }<figcaption>Cosmo (TU-BT1-01)</figcaption>
+  ![COSMO standing on the lab football field](../assets/images/t1-tu-bt1-01.jpg){ width="360" }<figcaption>COSMO (TU-BT1-01)</figcaption>
 </figure>
 
 ## Computers
 
-Cosmo has two boards. Both run Ubuntu 22.04.5.
+COSMO has two boards. Both run Ubuntu 22.04.5.
 
 | Item           | x86 motion board                                          | AGX Orin perception board                                      |
 | -------------- | --------------------------------------------------------- | -------------------------------------------------------------- |
@@ -192,44 +192,52 @@ Groups: head 2, each arm 4, waist 1, each leg 6. The head yaw joint is spelled `
 
 ### Joint limits
 
-Limits are in degrees. The index here starts at 0; the `/joint_states` number in the last column starts at 1. The arm and ankle joints are named differently in the two lists, so a ROS joint is only matched where the names clearly agree.
+> [!warning] Review needed
+> This section has not been reviewed by the team yet.
 
-| Index | Joint name | Limit (degrees) | ROS joint (`/joint_states` #) |
-|---|---|---|---|
-| 0 | Head Yaw | -58 to 58 | `aahead_yaw_joint` (1) |
-| 1 | Head Pitch | -18 to 47 | `aahead_pitch_joint` (2) |
-| 2 | Left Shoulder Pitch | -188 to 68 | `left_shoulder_pitch_joint` (3) |
-| 3 | Left Shoulder Roll | -94 to 88 | `left_shoulder_roll_joint` (4) |
-| 4 | Left Shoulder Yaw | -128 to 128 | [UNKNOWN] `left_elbow_pitch_joint` or `left_elbow_yaw_joint` |
-| 5 | Left Elbow | -120 to 2 | [UNKNOWN] the other one of those two |
-| 6 | Right Shoulder Pitch | -188 to 68 | `right_shoulder_pitch_joint` (7) |
-| 7 | Right Shoulder Roll | -88 to 94 | `right_shoulder_roll_joint` (8) |
-| 8 | Right Shoulder Yaw | -128 to 128 | [UNKNOWN] `right_elbow_pitch_joint` or `right_elbow_yaw_joint` |
-| 9 | Right Elbow | -2 to 120 | [UNKNOWN] the other one of those two |
-| 10 | Waist Yaw | -15 to 58 | `waist_yaw_joint` (11) |
-| 11 | Left Hip Pitch | -118 to 118 | `left_hip_pitch_joint` (12) |
-| 12 | Left Hip Roll | -21 to 88 | `left_hip_roll_joint` (13) |
-| 13 | Left Hip Yaw | -58 to 58 | `left_hip_yaw_joint` (14) |
-| 14 | Left Knee | -11 to 123 | `left_knee_pitch_joint` (15) |
-| 15 | Left Ankle Up | -23 to 49 | [UNKNOWN] `left_ankle_pitch_joint` (16) or roll (17) |
-| 16 | Left Ankle Down | -24 to 45 | [UNKNOWN] the other one of those two |
-| 17 | Right Hip Pitch | -118 to 118 | `right_hip_pitch_joint` (18) |
-| 18 | Right Hip Roll | -88 to 21 | `right_hip_roll_joint` (19) |
-| 19 | Right Hip Yaw | -58 to 58 | `right_hip_yaw_joint` (20) |
-| 20 | Right Knee | -11 to 123 | `right_knee_pitch_joint` (21) |
-| 21 | Right Ankle Up | -23 to 49 | [UNKNOWN] `right_ankle_pitch_joint` (22) or roll (23) |
-| 22 | Right Ankle Down | -24 to 45 | [UNKNOWN] the other one of those two |
+Limits are in degrees. The index starts at 0; the `/joint_states` number in the last column starts at 1. "Configured" is the position limit in the robot's `/opt/booster/configs/robot_config.yaml`. "Vendor manual" is the limit in the vendor manual V1.1, which has fewer digits. Where the two differ by a degree or more, the vendor value is in bold and is the narrower one.
 
-![Cosmo with every joint labelled by index 0 to 22](../assets/images/t1-joint-layout.png)
+> [!warning]
+> Stay inside the narrower of the two ranges. [UNVERIFIED] The robot may not stop a joint at these limits: in the robot's safety settings the position limit check is switched off.
+
+| Index | Joint name | Configured | Vendor manual | ROS joint (`/joint_states` #) |
+|---|---|---|---|---|
+| 0 | Head Yaw | -58 to 58 | -58 to 58 | `aahead_yaw_joint` (1) |
+| 1 | Head Pitch | -18 to 47 | -18 to 47 | `aahead_pitch_joint` (2) |
+| 2 | Left Shoulder Pitch | -188 to 68 | -188 to 68 | `left_shoulder_pitch_joint` (3) |
+| 3 | Left Shoulder Roll | -114.6 to 88 | **-94 to 88** | `left_shoulder_roll_joint` (4) |
+| 4 | Left Shoulder Yaw | -128 to 128 | -128 to 128 | `left_elbow_pitch_joint` (5) |
+| 5 | Left Elbow | -120 to 2 | -120 to 2 | `left_elbow_yaw_joint` (6) |
+| 6 | Right Shoulder Pitch | -188 to 68 | -188 to 68 | `right_shoulder_pitch_joint` (7) |
+| 7 | Right Shoulder Roll | -88 to 114.6 | **-88 to 94** | `right_shoulder_roll_joint` (8) |
+| 8 | Right Shoulder Yaw | -128 to 128 | -128 to 128 | `right_elbow_pitch_joint` (9) |
+| 9 | Right Elbow | -2 to 120 | -2 to 120 | `right_elbow_yaw_joint` (10) |
+| 10 | Waist Yaw | -58 to 58 | -58 to 58 | `waist_yaw_joint` (11) |
+| 11 | Left Hip Pitch | -118 to 118 | -118 to 118 | `left_hip_pitch_joint` (12) |
+| 12 | Left Hip Roll | -32.5 to 88 | **-21 to 88** | `left_hip_roll_joint` (13) |
+| 13 | Left Hip Yaw | -58 to 58 | -58 to 58 | `left_hip_yaw_joint` (14) |
+| 14 | Left Knee | -11.5 to 123 | **0 to 123** | `left_knee_pitch_joint` (15) |
+| 15 | Left Ankle Up | -23.2 to 49.1 | -23 to 49 | `left_ankle_pitch_joint` (16) |
+| 16 | Left Ankle Down | -24.5 to 45.1 | -24 to 45 | `left_ankle_roll_joint` (17) |
+| 17 | Right Hip Pitch | -118 to 118 | -118 to 118 | `right_hip_pitch_joint` (18) |
+| 18 | Right Hip Roll | -88 to 32.5 | **-88 to 21** | `right_hip_roll_joint` (19) |
+| 19 | Right Hip Yaw | -58 to 58 | -58 to 58 | `right_hip_yaw_joint` (20) |
+| 20 | Right Knee | -11.5 to 123 | **0 to 123** | `right_knee_pitch_joint` (21) |
+| 21 | Right Ankle Up | -23.2 to 49.1 | -23 to 49 | `right_ankle_pitch_joint` (22) |
+| 22 | Right Ankle Down | -24.5 to 45.1 | -24 to 45 | `right_ankle_roll_joint` (23) |
+
+The ROS joint is the `motor_name` that the configuration gives to the same index. [UNKNOWN] Whether the ankle limits (15, 16, 21, 22) apply to the ankle pitch and roll of `/joint_states`: the vendor calls these joints Ankle Up and Ankle Down, the two motors that drive the ankle together.
+
+![COSMO with every joint labelled by index 0 to 22](../assets/images/t1-joint-layout.png)
 
 *Joint layout, front view, with the joint indices. The drawing labels joint 7 "Right Shoulder Pitch"; it is the right shoulder roll.*
 
 
-![Cosmo in zero pose with the joint axes drawn in colour](../assets/images/t1-zero-pose-axes.png)
+![COSMO in zero pose with the joint axes drawn in colour](../assets/images/t1-zero-pose-axes.png)
 
 *3D view with the joint axes at the zero position: X red, Y green, Z blue.*
 
-![Front view of Cosmo in zero pose with joint axes and a height scale](../assets/images/t1-zero-pose-front.png)
+![Front view of COSMO in zero pose with joint axes and a height scale](../assets/images/t1-zero-pose-front.png)
 
 *Front view in the zero pose, with joint axes and a height scale in metres on the left.*
 

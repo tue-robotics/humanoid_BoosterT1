@@ -1,85 +1,128 @@
 ---
 doc:
   quadrant: explanation
-  verified_on: "2026-09-22"
-  status: partial
+  verified_on: "software 1.8.0.9, both boards"
 ---
-# System architecture of Cosmo (example page)
+# System architecture
 
-An overview of how Cosmo's software is put together, written so that a newcomer knows what runs where and which interfaces exist. It is deliberately limited to what has been observed on one robot; everything else is listed under [Gaps](#gaps) instead of being guessed.
+This page explains how COSMO's software is spread over its two computers, how the two act as one ROS 2 system, and how data and commands move through it. The details are on the reference pages: [[hardware-overview]], [[software_overview]], [[ros-interfaces]] and [[rpc_api]]. Values marked (software 1.6.2.2) were not checked on 1.8.0.9.
 
-**Source line.** Observations on one T1 (perception board, firmware T1 2.3.4, ROS 2 Humble): first access session 2026-09-08, RPC and agent survey 2026-09-15, camera session 2026-09-22; MuJoCo checks 2026-10-02. Nothing was observed on the second computer (motion control board).
+## Two computers, two jobs
 
-## 1. Scope
+| Board | Job | Hardware it owns |
+|---|---|---|
+| x86 motion board | Motion: modes, walking, joint control | the motors and the joystick receiver |
+| AGX Orin perception board | Perception and interaction: camera, audio, agents | the head camera and the audio devices |
 
-Cosmo is used here as a platform for RoboCup @Home. This page explains the structure of its onboard software and the interfaces a developer meets first. It does not explain how to drive the robot; the how-to and reference pages do.
+The x86 board has a real-time kernel. [INFERENCE] The reason is the motion loop, which must run at a fixed rate. The Orin has the GPU and the AI libraries.
 
-## 2. Context
+A board publishes the topics of the hardware it owns. Camera topics start on the Orin. Joint and IMU topics start on the x86 board (software 1.6.2.2). A program that needs data from the other board gets it through ROS 2, over the cable between the boards.
 
-Three parties interact with the robot software:
-
-- **Developer machine.** Reaches the robot over the wireless network by SSH and ROS 2 tools. A separate, robot-free path is the MuJoCo simulation of the walking policy (see the how-to page "Run the T1 locomotion policy in MuJoCo").
-- **Vendor software on the robot.** Services that start at boot, including the agent manager.
-- **Team software on the robot.** Tech United's own RoboCup software is installed as several parallel colcon workspaces in the robot user's home directory. It is maintained inside the team and is not described here.
-
-## 3. Building blocks
+[INFERENCE] The x86 board sends motor commands as network packets to five net2can boards, which pass them on to the motors over CAN. Neither board uses a CAN port of its own. See [[hardware-overview#Motor bus]].
 
 ```mermaid
 flowchart LR
-  dev["Developer PC<br/>SSH, ROS 2 CLI"]
-  sim["MuJoCo simulation<br/>policy + T1 model<br/>(no robot, no ROS)"]
+  lap["Laptop<br/>Foxglove, SSH"]
 
-  subgraph perception["Perception board (Jetson Orin, Ubuntu, ROS 2 Humble)"]
-    svc["Booster services<br/>daemon, agent manager, joystick, ..."]
-    agents["Agent bundles<br/>ai_chat, soccer, teaching, dance_demo, default"]
-    rpc["RPC envelope<br/>BoosterApiReqMsg / RpcService"]
-    low["Low-level types<br/>LowCmd, LowState, MotorCmd, MotorState"]
-    cam["Camera drivers and topics"]
-    team["Team colcon workspaces"]
+  subgraph x86["x86 motion board"]
+    rpcb["loco_rpc_bridge"]
+    mot["Booster motion programs"]
   end
 
-  motion["Motion control board<br/>NOT OBSERVED"]
+  subgraph orin["AGX Orin perception board"]
+    cam["RealSense camera node"]
+    mgr["booster_agent_manager<br/>and default agent"]
+    fg["foxglove_bridge"]
+  end
 
-  dev -- "SSH / ROS 2 over WLAN" --> perception
-  dev -- "runs locally" --> sim
-  svc -. "manager reads installed agents (not observed)" .-> agents
-  rpc -. "vendor guide only" .-> motion
-  low -. "vendor guide only" .-> motion
+  n2c["5 net2can boards"]
+  motors["Joint motors"]
 
-  classDef gap stroke-dasharray: 5 5;
-  class motion gap;
+  cam -- "images" --> fg
+  mot -- "joint and robot state,<br/>ROS 2 over the cable" --> fg
+  fg -- "WebSocket over Wi-Fi" --> lap
+  rpcb -.-> mot
+  mot -.-> n2c
+  n2c -.-> motors
+
+  classDef inferred stroke-dasharray: 5 5;
+  class n2c,motors inferred;
 ```
 
-The solid arrow is observed. Dashed lines are links that were not observed: they come from names or from the vendor guide only, and the vendor guide was written for an older system image.
+Solid line: observed. Dashed box or line: inferred, not observed directly.
 
-| Block | What was observed | Reference |
+## Start-up
+
+On each board, one systemd service starts Booster's own `containerd`, and that starts the Booster programs. Most Booster programs are therefore not separate systemd services, and `systemctl` shows only the top of the chain. Which program runs where: [[software_overview#Programs]].
+
+The football team uses the same robot. Programs and files on the boards can belong to them.
+
+## One ROS 2 system on two boards
+
+The Fast DDS profile of the login shells allows only two ways to send data: UDP on the loopback address and the two wired addresses, and shared memory inside one board. This has three consequences:
+
+- **The two boards form one ROS 2 graph.** Each board lists the topics of the other.
+- **A laptop on Wi-Fi is outside the graph.** [INFERENCE] The profile contains no Wi-Fi address, so a laptop cannot subscribe directly. A bridge program on the Orin, such as `foxglove_bridge`, forwards the data.
+- **Shared memory can hide topics from a bridge.** A `foxglove_bridge` on the Orin with this profile receives the x86 topics but not the camera topics of its own board (software 1.6.2.2). A UDP-only profile solves it. See [[software_overview#Known problems]].
+
+## Three layers of control
+
+A program can control COSMO at three levels. The higher the level, the more Booster's software decides.
+
+| Layer | What a program sends | Where to read more |
 |---|---|---|
-| Two computers | The T1 contains two separate computers. The one inspected is a Jetson Orin with `aarch64` Ubuntu and ROS 2 Humble. | the hardware reference page |
-| Booster services | Running at boot: `booster-agent-manager`, `booster-battery-daemon`, `booster-btmon`, `booster-daemon-perception`, `booster-daemon`, `booster-update-engine`, `joystick_ros2` (2026-09-08). | the command cheatsheet |
-| Software layout | Vendor software lives under `/opt/booster/` (directories include `BoosterRos2`, `BoosterRos2Interface`, `Gait`, `RobotCore`, `RemoteController`, `BoosterShell`, `Tools`, `configs`). | the hardware reference page |
-| RPC envelope | One generic request type with `api_id` and `body`, and a service `RpcService`. | the RPC API reference page |
-| Low-level interface | A separate message family (`LowCmd`, `LowState`, `MotorCmd`, `MotorState`). Topics `/low_state`, `/joint_ctrl`, `/odometer_state`, `/head_pose` exist. | the RPC API reference page |
-| Agent system | Five installed agent bundles and an on-disk layout managed by a service. | the agent plugin system reference page |
-| Camera | Depth camera (RealSense D455) with several image topics. | the camera topics reference page |
-| Network | The perception board has two wired interfaces and one wireless interface; both CAN interfaces were down. | the getting-started tutorial |
-| Simulation | Walking policy: MLP, 47 inputs, 12 outputs, 50 Hz policy and 500 Hz physics in MuJoCo, running in a single process. | the MuJoCo how-to |
+| Agent | A packaged application on the Orin, run by `booster_agent_manager` | [[software_overview#Booster agents]] |
+| RPC | One request, such as "change mode" or "move the head" | [[rpc_api]] |
+| Joints | Motor commands on `/joint_ctrl` (`LowCmd`) | [[ros-interfaces#LowCmd and MotorCmd]] |
 
-## 4. Interface layers
+[UNVERIFIED] Joint commands work only in Custom mode; our program then has to keep the balance itself. [UNKNOWN] How agents pass their commands on to the motion programs.
 
-1. **Low-level joint interface.** Typed messages for motor commands and states. A walking policy such as the one in the simulation consumes joint state and emits joint targets; whether the factory walking controller is of that kind is not known.
-2. **RPC envelope.** A generic `api_id` plus JSON-like `body` call format shared by the per-domain request topics. What each `api_id` does is not known to us.
-3. **Agents.** Packaged robot-side applications installed by a manager service.
+## How a command travels
 
-The first two are different message families, so they are separate layers. How the third relates to the RPC layer is not established.
+A client calls the service `/booster_rpc_service` with an `api_id` and a `body`.
 
-> [!warning] Live command paths
-> `*ApiTopicReq` topics and `RpcService` are command paths into the robot. Do not publish or call them without knowing exactly what they do.
+```mermaid
+sequenceDiagram
+  participant C as Client
+  participant B as loco_rpc_bridge (x86)
+  participant T as /LocoApiTopicReq
+  participant M as Booster motion programs (x86)
 
-## Gaps
+  C-->>B: service call, api_id 2000 (change mode)
+  B->>T: the same request as a message
+  T-->>M: request
+  M-->>B: response
+  B-->>C: status 0
+```
 
-> [!info] Not observed, so not claimed
-> - Everything about the motion control board: its services, which board carries motor communication, and over which bus. Both CAN interfaces on the perception board were down when listed.
-> - Whether the RPC request topics carry the same envelope as `RpcService`, and which process serves them.
-> - The robot modes (damping, preparation, walking, custom) are described in the vendor manual but were not tested by us, so they are not described here.
-> - How a custom agent would be installed and whether that is supported.
-> - Bridge between simulation and robot: sources disagree on topic names for a real-robot deployment of the policy, and none was tested.
+Solid arrow: observed. Dashed arrow: inferred, not observed directly. The client gets status 0 and `loco_rpc_bridge` logs the request; that `loco_rpc_bridge` itself serves the call is inferred.
+
+- **The same request has two forms.** The service has `api_id` and `body`. The topic has a `uuid`, a JSON `header` and a `body`; the `uuid` links a response to its request (software 1.6.2.2).
+- **Requests are visible to everyone.** Every program in the graph can see what is sent on `/LocoApiTopicReq`, also by other users of the robot.
+- **Status 0 is not the end of the movement.** [UNVERIFIED] It means that the request was accepted. Check the mode in `/robot_states`.
+
+The joystick takes another route, through the agent manager on the Orin: [[control_with_joystick#How a button press reaches the motors]].
+
+> [!warning]
+> `/booster_rpc_service`, `/joint_ctrl` and the `*ApiTopicReq` topics can move COSMO. Do not publish to them or call them without knowing what they do.
+
+## How data travels
+
+| Data | Starts on | Rate |
+|---|---|---|
+| Joint, motor, IMU and odometry state | x86 board (software 1.6.2.2) | 500 Hz |
+| Colour and depth images | Orin | 30 Hz |
+| Mode (`/robot_states`) | [UNKNOWN] | 2 Hz |
+| Fall state (`/fall_down`) | [UNKNOWN] | 1 Hz |
+
+- **Raw images are too large for Wi-Fi.** The raw colour image is about 83 MB/s. Through the bridge it reached 8.6 MB/s and under 5 fps. A program on the Orin that sends 640x360 JPEG images at 10 Hz gives usable video.
+- **Image processing belongs on the Orin.** [INFERENCE] The cable between the boards cannot carry the raw colour and depth images together.
+- **The robot's `/tf` has only head frames.** [INFERENCE] A whole-body tree must be built from the joint states, the odometry and a URDF.
+
+## Open questions
+
+- [UNKNOWN] What `loco_rpc_bridge` sends on to the motion programs, and how.
+- [UNKNOWN] What the four serial ports of the x86 board carry.
+- [UNKNOWN] Whether a laptop on the wired `192.168.10.x` network can join the graph.
+- [UNKNOWN] Why `/tf` has only head frames.
+- [UNKNOWN] Whether third-party agents are supported.

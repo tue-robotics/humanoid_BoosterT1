@@ -4,9 +4,18 @@
 (function () {
   const root = new URL(".", document.currentScript.src).href;
 
+  // Draw from the copy of the previous page first, so the picker does not push the menu down later.
+  const key = "dx-versions " + root;
+  let cached = null;
+  try { cached = JSON.parse(sessionStorage.getItem(key)); } catch {}
+  if (cached) render(cached);
+
   fetch(root + "versions.json")
     .then((r) => r.json())
-    .then(render)
+    .then((versions) => {
+      try { sessionStorage.setItem(key, JSON.stringify(versions)); } catch {}
+      if (!cached) render(versions);
+    })
     .catch(() => {}); // no versions.json: show nothing
 
   function render(versions) {

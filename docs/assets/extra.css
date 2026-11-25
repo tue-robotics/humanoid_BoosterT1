@@ -165,8 +165,11 @@
   font: 700 0.72rem/1.25 'Source Sans 3', sans-serif;
 }
 .dx-brand:hover { color: var(--dx-accent); }
+.dx-brand__name { white-space: nowrap; }  /* else it wraps until the web font is loaded */
 .dx-brand__logo { flex-shrink: 0; color: var(--dx-accent); }
-.dx-brand__logo img { display: block; width: auto; height: 2.6rem; }
+/* Fixed box (logo is 439x443 px), else the menu moves down when the image arrives. */
+.dx-brand__logo { width: 2.58rem; height: 2.6rem; }
+.dx-brand__logo img { display: block; width: 100%; height: 100%; }
 .dx-repo { padding: 0.5rem 0.44rem 0.7rem; }
 .dx-repo .md-source {
   display: flex;
@@ -179,6 +182,8 @@
 .dx-repo .md-source__icon { width: 0.9rem; height: 0.9rem; flex-shrink: 0; }
 .dx-repo .md-source__icon svg { margin: 0; width: 0.9rem; height: 0.9rem; display: block; }
 .dx-repo .md-source__repository { margin: 0; padding: 0; max-width: none; }
+/* The repository count slides in after every page load and pushes the menu down: not shown. */
+.dx-repo .md-source__facts { display: none; }
 
 /* Menu: links 13.6 px, muted; top-level folders bold with a rule above each group.
    Every line of text starts at the same left edge as the logo, search, branch picker and repo
@@ -326,6 +331,8 @@ html .md-footer-meta.md-typeset a:focus { color: var(--dx-accent); }
    - drawer (narrow screens): the results open in the menu itself, between the box and the links.
    --------------------------------------------------------------------------------------------- */
 .md-sidebar .md-search { padding: 0 0 0.3rem; }
+/* Material hides the search box until its script runs, which moves the menu down 42 px: show it at once. */
+.no-js .md-sidebar .md-search { display: block; }
 .md-sidebar .md-search__inner {
   float: none;
   width: 100%;
@@ -551,4 +558,22 @@ html .md-footer-meta.md-typeset a:focus { color: var(--dx-accent); }
    stay dark. With a mouse the highlight remains. */
 @media (hover: none) {
   .md-typeset table:not([class]) tbody tr:hover { background-color: transparent; box-shadow: none; }
+}
+
+/* Page changes: keep the old page on screen until the new one is drawn, then a short cross-fade, so
+   there is no flash. Browsers without view transitions ignore this. */
+@view-transition { navigation: auto; }
+::view-transition-old(root),
+::view-transition-new(root) { animation-duration: 0.1s; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none; }
+}
+
+/* Scrollbars: the page bar is always there, so short pages do not move sideways, and it is dark in dark
+   mode. The bars of the two sidebars stay away until Material has set the sidebar height. */
+html { overflow-y: scroll; }
+html:has(body[data-md-color-scheme="slate"]) { color-scheme: dark; }
+@media screen and (min-width: 76.25em) {   /* not in the phone drawer, which must scroll */
+  .md-sidebar__scrollwrap:not([style*="height"]) { overflow-y: hidden; }
 }

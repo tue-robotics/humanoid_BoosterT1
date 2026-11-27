@@ -1,5 +1,5 @@
 {#- Theme override: no top bar. Material's header (logo, title, search, repo link, palette) is
-    reduced to the drawer button (narrow screens) and the light/dark toggle; the logo, site title,
+    reduced to the drawer button and logo (narrow screens) and the light/dark toggle; the logo, site title,
     search and repo link move into the top of the left sidebar. Layout and colours: docs/assets/extra.css.
     Everything else comes from Material's base.html, so authors change nothing. -#}
 {% extends "base.html" %}
@@ -11,6 +11,7 @@
         {% set icon = config.theme.icon.menu or "material/menu" %}
         {% include ".icons/" ~ icon ~ ".svg" %}
       </label>
+      <a class="dx-topbar__logo" href="{{ config.extra.homepage | d(nav.homepage.url, true) | url }}" title="{{ config.site_name | e }}">{% include "partials/logo.html" %}</a>
       {% if config.theme.palette %}
         {% if not config.theme.palette is mapping %}
           {% include "partials/palette.html" %}
@@ -58,6 +59,33 @@
         </div>
       </div>
     </div>
+    {#- Keep the menu where the reader left it. Material scrolls the menu to the current page on every
+        load, which makes it jump when the window is shorter than the menu. -#}
+    <script>
+      (function () {
+        var wrap = document.querySelector(".md-sidebar--primary .md-sidebar__scrollwrap");
+        if (!wrap || !matchMedia("(min-width: 76.25em)").matches) return;
+        wrap.style.overflowAnchor = "none";   // the browser must not correct the position set below
+        var key = "dx-menu-scroll", saved = null;
+        try { saved = sessionStorage.getItem(key); } catch (e) {}
+        addEventListener("pagehide", function () {
+          try { sessionStorage.setItem(key, wrap.scrollTop); } catch (e) {}
+        });
+        if (saved === null) return;
+        var box = wrap.getBoundingClientRect();
+        wrap.style.height = innerHeight - box.top - 24 + "px";   // Material sets the same height later
+        wrap.scrollTop = +saved;
+        // Current page not visible there (reader came from a link in the text): let Material scroll.
+        var links = wrap.querySelectorAll(".md-nav__link--active[href]");
+        var link = links[links.length - 1];
+        if (link) {
+          var l = link.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+          if (l.top < w.top || l.bottom > w.bottom) return;
+        }
+        wrap.scrollTo = function () { wrap.scrollTop = +saved; };
+        addEventListener("load", function () { setTimeout(function () { delete wrap.scrollTo; }, 500); });
+      })();
+    </script>
   {% endif %}
   {% if "toc.integrate" not in features %}
     {% if page.meta and page.meta.hide %}
@@ -72,3 +100,21 @@
     </div>
   {% endif %}
 {% endblock %}
+
+{#- Same structure as Material's container block, with the footer moved from below the whole page into
+    the content column, so it lines up with the text and the sidebars run to the bottom of the page. -#}
+{% block container %}
+  <div class="md-content" data-md-component="content">
+    {% if "navigation.path" in features %}
+      {% include "partials/path.html" %}
+    {% endif %}
+    <article class="md-content__inner md-typeset">
+      {% block content %}
+        {% include "partials/content.html" %}
+      {% endblock %}
+    </article>
+    {% include "partials/footer.html" %}
+  </div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

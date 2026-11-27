@@ -62,6 +62,9 @@
 .md-typeset li { margin-bottom: 0.3em; }
 .md-typeset table:not([class]) { font-size: 0.72rem; }
 
+/* A table header row without any text is only an empty strip. */
+.md-typeset table:not([class]) thead:not(:has(th:not(:empty))) { display: none; }
+
 /* Code inside sentences: slightly smaller so it does not dominate the line. */
 .md-typeset code { font-size: 0.84em; }
 
@@ -79,7 +82,7 @@
 
 /* ---------------------------------------------------------------------------------------------
    Dark theme, colours of diataxis.fr (Furo dark): near-black page #131416 with a pure black left
-   sidebar column (see below); code, footer and table headers one step lighter; soft grey text; calm
+   sidebar column (see below); code and table headers one step lighter; soft grey text; calm
    blue links instead of diataxis.fr's orange.
    --------------------------------------------------------------------------------------------- */
 [data-md-color-scheme="slate"] {
@@ -88,8 +91,6 @@
   --md-default-bg-color--light: rgba(19, 20, 22, 0.54);
   --md-default-bg-color--lighter: rgba(19, 20, 22, 0.26);
   --md-default-bg-color--lightest: rgba(19, 20, 22, 0.07);
-  --md-footer-bg-color: #1a1c1e;
-  --md-footer-bg-color--dark: #131416;
 
   /* text */
   --md-default-fg-color: #e6e7e8;            /* headings, 15:1 */
@@ -118,10 +119,10 @@
 }
 
 /* ---------------------------------------------------------------------------------------------
-   Top of the page: no header bar. tools/docs/overrides/main.html keeps only the light/dark toggle
-   (top right) and, on narrow screens, the drawer button (top left). The header takes no space and
-   is not sticky, so both scroll away with the page; Material's JS notices that the header is not
-   sticky and stops reserving room for it. No colour, shadow or border.
+   Top of the page, desktop: no header bar. tools/docs/overrides/main.html keeps only the light/dark
+   toggle (top right). The header has no height, so the toggle scrolls away with the page and
+   Material's JS, which reads the header's height, reserves no room for it. No colour, shadow or border.
+   Narrow screens get a sticky bar instead: see "Narrow screens" at the end of this file.
    --------------------------------------------------------------------------------------------- */
 .md-header {
   position: relative;
@@ -143,14 +144,8 @@
 /* Drawer button: pushes the toggle to the right. Material hides it on desktop. */
 .md-header__button[for="__drawer"] { margin-right: auto; }
 .md-header__button:hover { color: var(--dx-accent); opacity: 1; }
-/* Space above the sidebars. It is kept equal to the sidebars' own top padding (1.2rem) on purpose:
-   Material's JS sizes the sticky sidebars as the window height minus twice this margin, so that
-   they fill the window exactly once the page has scrolled. On narrow screens the content column
-   gets extra room for the drawer button instead. */
+/* Space above the sidebars, equal to their own top padding (1.2rem). */
 .md-main__inner { margin-top: 1.2rem; }
-@media screen and (max-width: 76.234375em) {
-  .md-content { padding-top: 1.4rem; }
-}
 
 /* ---------------------------------------------------------------------------------------------
    Left sidebar, in the style of diataxis.fr: logo and site title, search box and repo link on top
@@ -170,8 +165,11 @@
   font: 700 0.72rem/1.25 'Source Sans 3', sans-serif;
 }
 .dx-brand:hover { color: var(--dx-accent); }
+.dx-brand__name { white-space: nowrap; }  /* else it wraps until the web font is loaded */
 .dx-brand__logo { flex-shrink: 0; color: var(--dx-accent); }
-.dx-brand__logo img { display: block; width: auto; height: 2.6rem; }
+/* Fixed box (logo is 439x443 px), else the menu moves down when the image arrives. */
+.dx-brand__logo { width: 2.58rem; height: 2.6rem; }
+.dx-brand__logo img { display: block; width: 100%; height: 100%; }
 .dx-repo { padding: 0.5rem 0.44rem 0.7rem; }
 .dx-repo .md-source {
   display: flex;
@@ -184,6 +182,8 @@
 .dx-repo .md-source__icon { width: 0.9rem; height: 0.9rem; flex-shrink: 0; }
 .dx-repo .md-source__icon svg { margin: 0; width: 0.9rem; height: 0.9rem; display: block; }
 .dx-repo .md-source__repository { margin: 0; padding: 0; max-width: none; }
+/* The repository count slides in after every page load and pushes the menu down: not shown. */
+.dx-repo .md-source__facts { display: none; }
 
 /* Menu: links 13.6 px, muted; top-level folders bold with a rule above each group.
    Every line of text starts at the same left edge as the logo, search, branch picker and repo
@@ -251,9 +251,57 @@
   background-color: #1e2124;
 }
 
-/* Footer: page dates and previous/next links in the same calm tone as the rest of the page. */
+/* ---------------------------------------------------------------------------------------------
+   Footer: sits at the end of the reading column (moved there in main.html) on the page colour, as on
+   diataxis.fr. Previous/next links, a hairline, then the credit line and icons. On short pages it
+   is pushed to the bottom of the window.
+   --------------------------------------------------------------------------------------------- */
 .md-source-file { margin-top: 2.5em; }
-.md-footer__title { font-size: 0.85rem; }
+.md-main { display: flex; flex-direction: column; }
+.md-main__inner { flex: 1 0 auto; width: 100%; height: auto; }
+.md-content { display: flex; flex-direction: column; }
+.md-content__inner { width: 100%; }
+.md-footer {
+  width: 100%;
+  max-width: 40rem;        /* = .md-content__inner */
+  margin: auto auto 0;
+  padding-bottom: 0.8rem;
+  box-sizing: border-box;
+  background: none;
+  color: var(--md-default-fg-color);
+}
+.md-footer .md-grid { max-width: none; margin: 0; padding-left: 0; padding-right: 0; }
+.md-footer__inner { overflow: visible; }   /* Material's auto would clip the links' focus ring */
+.md-footer__link { align-items: center; margin: 0.4rem 0; }
+.md-footer__link:hover,
+.md-footer__link:focus { color: var(--dx-accent); opacity: 1; }
+.md-footer__button { margin: 0; padding: 0.4rem 0; }
+.md-footer__button svg { width: 0.9rem; height: 0.9rem; }
+.md-footer__title {
+  margin: 0;
+  padding: 0 0.6rem;
+  max-width: none;
+  min-width: 0;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+.md-footer__direction {
+  display: block;
+  color: var(--md-default-fg-color--light);
+  opacity: 1;
+}
+.md-footer-meta { background: none; border-top: 1px solid var(--dx-line); }
+.md-footer-meta__inner { align-items: center; }
+.md-copyright { margin: 0; font-size: 0.64rem; line-height: 1.5; }
+.md-copyright,
+.md-copyright__highlight,
+html .md-footer-meta.md-typeset a { color: var(--md-default-fg-color--light); }
+html .md-footer-meta.md-typeset a:hover,
+html .md-footer-meta.md-typeset a:focus { color: var(--dx-accent); }
+/* 32 px touch area around an 18 px icon; the negative margin puts the icon's edge on the column edge. */
+.md-footer .md-social { margin: 0 -0.35rem 0 0; padding: 0.2rem 0; }
+.md-social__link { width: 1.6rem; }
+.md-social__link svg { display: block; width: 0.9rem; height: 0.9rem; max-height: none; margin: 0.35rem; }
 
 /* ---------------------------------------------------------------------------------------------
    Back-to-top button (navigation.top), as on diataxis.fr: a small pill on the page colour, accent
@@ -283,6 +331,8 @@
    - drawer (narrow screens): the results open in the menu itself, between the box and the links.
    --------------------------------------------------------------------------------------------- */
 .md-sidebar .md-search { padding: 0 0 0.3rem; }
+/* Material hides the search box until its script runs, which moves the menu down 42 px: show it at once. */
+.no-js .md-sidebar .md-search { display: block; }
 .md-sidebar .md-search__inner {
   float: none;
   width: 100%;
@@ -383,28 +433,147 @@
     z-index: -1;
     background-color: var(--dx-sidebar-bg);
   }
-  /* Clipping (not scrolling) keeps the overhang from adding scrollbars, and the footer stays clear
-     of the tint because it lies outside .md-main. */
+  /* Clipping (not scrolling) keeps the overhang from adding scrollbars, and the tint ends at
+     the sidebar's right edge, so it never reaches the footer in the content column. */
   [data-md-color-scheme="slate"] .md-main { overflow: clip; }
 }
 
-/* Sidebars stick to the top of the window now that no header sits above them. */
+/* Sidebars stick to the top of the window (Material's JS moves them below the bar on narrow screens). */
 .md-sidebar { top: 0; }
 
-/* Drawer (narrow screens): a plain sheet, no coloured title bar. Brand, search box and repo link
-   sit on top; the menu fills the rest and keeps Material's sliding sub-menus, which are positioned
-   against the menu box (position: relative), so they cover the menu but not the brand or search. */
+/* ---------------------------------------------------------------------------------------------
+   Narrow screens (phone and tablet, menu in a drawer). One left/right gutter of 0.8rem (16 px) for
+   the top bar, text, tables and footer; menu links are about 40 px tall for touch.
+   --------------------------------------------------------------------------------------------- */
+.dx-topbar__logo { display: none; }   /* logo in the top bar: narrow screens only */
 @media screen and (max-width: 76.234375em) {
-  .md-sidebar--primary .md-sidebar__inner {
-    display: flex;
-    flex-direction: column;
+  /* Top bar: stays in view, so the menu is always one tap away on long pages. */
+  .md-header {
+    position: sticky;
+    height: 2.6rem;
+    background: var(--md-default-bg-color);
+    border-bottom: 1px solid var(--dx-line);
+  }
+  .md-header__inner {
+    position: static;
+    justify-content: space-between;
     height: 100%;
-    padding-top: 0.8rem;
+    padding: 0 0.2rem;
   }
-  .md-sidebar--primary .md-nav--primary[data-md-level="0"] {
-    position: relative;
-    flex: 1;
-    min-height: 0;
+  .md-header__button[for="__drawer"] { margin-right: 0.2rem; }
+  .dx-topbar__logo { display: block; }
+  .dx-topbar__logo img { display: block; width: auto; height: 1.9rem; }
+
+  .md-grid { max-width: none; }
+  .md-main__inner { margin-top: 0.6rem; }
+  .md-content { padding: 0 0.8rem; }
+
+  /* Drawer: the whole menu open in one scrolling list, as on desktop; no sliding sub-menus. */
+  [dir="ltr"] .md-sidebar--primary { left: -15rem; width: 15rem; }
+  [data-md-toggle="drawer"]:checked ~ .md-container .md-sidebar--primary { transform: translateX(15rem); }
+  .md-sidebar--primary .md-sidebar__scrollwrap { overflow-y: auto; overscroll-behavior: contain; }
+  .md-sidebar--primary .md-sidebar__inner { padding: 0.8rem; }
+  .md-sidebar--primary .md-nav--primary,
+  .md-sidebar--primary .md-nav--primary .md-nav {
+    position: static;
     height: auto;
+    background: none;
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
+  .md-sidebar--primary .md-nav--primary .md-nav__title,
+  .md-sidebar--primary .md-nav__container > label.md-nav__link { display: none; }
+  .md-sidebar--primary .md-nav--primary .md-nav__list {
+    overflow: visible;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .md-sidebar--primary .md-nav--primary .md-nav .md-nav__item { border-top: 0; }
+  .md-sidebar--primary .md-nav__link,
+  .md-sidebar--primary .md-nav__container > .md-nav__link {
+    align-items: center;
+    padding: 0.5rem 0;
+    font-size: 0.76rem;
+  }
+  .md-sidebar--primary .md-nav__link.md-nav__container { padding: 0; }
+  /* Folders are always open: no arrow, nothing to tap. Folders inside folders are indented. */
+  .md-sidebar--primary .md-nav__item--nested > label.md-nav__link { pointer-events: none; }
+  .md-sidebar--primary .md-nav__item--nested > label.md-nav__link .md-nav__icon { display: none; }
+  .md-sidebar--primary .md-nav[data-md-level="2"],
+  .md-sidebar--primary .md-nav[data-md-level="3"] { padding-left: 0.6rem; }
+  .md-nav--primary > .md-nav__list > .md-nav__item { padding: 0.1rem 0; }
+
+  /* Headings of the current page: hidden here, opened by the list icon below 60em (next block). */
+  .md-sidebar--primary #__toc ~ .md-nav--secondary { display: none; }
+
+  /* Brand, search, branch picker and repo link share the drawer's gutter. 16 px form text: iOS
+     zooms the page when a smaller field is tapped. */
+  .dx-brand { padding: 0 0 0.8rem; }
+  .md-sidebar .md-search { padding: 0; }
+  .md-sidebar .md-search__form { height: 2.2rem; }
+  .md-sidebar .md-search__input { height: 100%; font-size: 0.8rem; }
+  .md-sidebar .md-search__icon[for="__search"] { top: 0.5rem; }
+  .md-sidebar--primary .dx-version { padding: 0.6rem 0 0; }
+  .md-sidebar--primary .dx-version select { height: 2.2rem; font-size: 0.8rem; }
+  .dx-repo { padding: 0.2rem 0; }
+  .dx-repo .md-source { min-height: 2rem; padding: 0.2rem 0; }
+}
+
+/* Below 60em the right-hand contents list is gone and Material shows a list icon next to the current
+   page in the drawer; tapping it opens that page's headings. Wider screens have no icon to close it. */
+@media screen and (max-width: 59.984375em) {
+  .md-sidebar--primary #__toc:checked ~ .md-nav--secondary {
+    display: block;
+    margin-bottom: 0.4rem;
+    padding-left: 0.6rem;
+    border-left: 1px solid var(--dx-line);
+  }
+  .md-sidebar--primary #__toc ~ .md-nav--secondary .md-nav { padding-left: 0.6rem; }
+  .md-sidebar--primary #__toc ~ .md-nav--secondary .md-nav__link { padding: 0.4rem 0; font-size: 0.7rem; }
+}
+
+/* Phone only: smaller headings, slightly larger text, compact tables, both footer links in full. */
+@media screen and (max-width: 44.984375em) {
+  .md-typeset { font-size: 0.82rem; }
+  .md-typeset h1 { font-size: 1.4rem; }
+  .md-typeset h2 { font-size: 1.2rem; }
+  .md-typeset h3 { font-size: 1.05rem; }
+  .md-typeset table:not([class]) th,
+  .md-typeset table:not([class]) td { padding: 0.5rem 0.6rem; }
+  .md-typeset table:not([class]) th { min-width: 4rem; }
+
+  .md-footer__inner:not([hidden]) { gap: 0.8rem; }
+  .md-footer__link { flex: 0 1 auto; min-width: 0; }
+  .md-footer__link--prev .md-footer__title { display: block; padding-right: 0; }
+  .md-footer__link--next .md-footer__title { padding-left: 0; }
+  .md-footer__title { white-space: normal; font-size: 0.76rem; }
+  .md-footer__title .md-ellipsis { white-space: normal; }
+  .md-footer-meta__inner { flex-wrap: nowrap; }
+  .md-copyright { width: auto; }
+}
+
+/* Touch screens: no row highlight. There is no pointer, so the row last touched while scrolling would
+   stay dark. With a mouse the highlight remains. */
+@media (hover: none) {
+  .md-typeset table:not([class]) tbody tr:hover { background-color: transparent; box-shadow: none; }
+}
+
+/* Page changes: keep the old page on screen until the new one is drawn, then a short cross-fade, so
+   there is no flash. Browsers without view transitions ignore this. */
+@view-transition { navigation: auto; }
+::view-transition-old(root),
+::view-transition-new(root) { animation-duration: 0.1s; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none; }
+}
+
+/* Scrollbars: the page bar is always there, so short pages do not move sideways, and it is dark in dark
+   mode. The bars of the two sidebars stay away until Material has set the sidebar height. */
+html { overflow-y: scroll; }
+html:has(body[data-md-color-scheme="slate"]) { color-scheme: dark; }
+@media screen and (min-width: 76.25em) {   /* not in the phone drawer, which must scroll */
+  .md-sidebar__scrollwrap:not([style*="height"]) { overflow-y: hidden; }
 }

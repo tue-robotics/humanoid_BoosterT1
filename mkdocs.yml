@@ -1,4 +1,4 @@
-site_name: Booster T1 Documentation for Tech United @Home
+site_name: COSMO Documentation
 site_url: https://tue-robotics.github.io/humanoid_BoosterT1/
 repo_url: https://github.com/tue-robotics
 repo_name: tue-robotics
@@ -29,7 +29,7 @@ theme:
     code: Roboto Mono
   features:
     # Flat sidebar: every folder is shown open, with its pages listed under it; nothing collapses.
-    # (On a phone the menu drawer still opens one folder at a time; that is Material's behaviour.)
+    # (The phone drawer shows the same open list; see "Narrow screens" in docs/assets/extra.css.)
     # No top tab bar.
     - navigation.sections    # top-level folders become fixed group headings, not collapsible blocks
     - navigation.expand      # any deeper folders also start open
@@ -77,6 +77,8 @@ plugins:
 
 markdown_extensions:
   - admonition
+  - attr_list              # { width="360" } after an image sets its display size
+  - md_in_html             # <figure markdown="span">: centred image with a <figcaption> below
   - toc:
       title: On this page
       permalink: true
